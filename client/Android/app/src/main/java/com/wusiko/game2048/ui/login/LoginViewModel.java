@@ -8,9 +8,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 import com.wusiko.game2048.R;
-import com.wusiko.game2048.data.LoginRepository;
-import com.wusiko.game2048.data.Result;
-import com.wusiko.game2048.data.model.LoggedInUser;
+import com.wusiko.game2048.data.login.LoginRepository;
+import com.wusiko.game2048.data.login.Result;
+import com.wusiko.game2048.data.login.LoggedInUser;
 
 import java.lang.ref.WeakReference;
 

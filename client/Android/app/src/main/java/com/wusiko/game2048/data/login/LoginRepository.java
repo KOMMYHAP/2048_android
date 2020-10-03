@@ -1,9 +1,7 @@
-package com.wusiko.game2048.data;
+package com.wusiko.game2048.data.login;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
-import com.wusiko.game2048.data.model.LoggedInUser;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;

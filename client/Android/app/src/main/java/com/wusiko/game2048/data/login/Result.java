@@ -1,4 +1,4 @@
-package com.wusiko.game2048.data;
+package com.wusiko.game2048.data.login;
 
 /**
  * A generic class that holds a result success w/ data or an error exception.

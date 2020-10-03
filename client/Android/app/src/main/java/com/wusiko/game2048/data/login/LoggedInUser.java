@@ -1,4 +1,4 @@
-package com.wusiko.game2048.data.model;
+package com.wusiko.game2048.data.login;
 
 /**
  * Data class that captures user information for logged in users retrieved from LoginRepository

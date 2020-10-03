@@ -1,6 +1,4 @@
-package com.wusiko.game2048.data;
-
-import com.wusiko.game2048.data.model.LoggedInUser;
+package com.wusiko.game2048.data.login;
 
 import java.io.IOException;
 

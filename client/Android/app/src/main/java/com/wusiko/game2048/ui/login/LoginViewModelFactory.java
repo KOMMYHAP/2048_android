@@ -4,8 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.wusiko.game2048.data.LoginDataSource;
-import com.wusiko.game2048.data.LoginRepository;
+import com.wusiko.game2048.data.login.LoginDataSource;
+import com.wusiko.game2048.data.login.LoginRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
