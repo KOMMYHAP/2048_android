@@ -1,11 +1,11 @@
-package com.wusiko.test.ui.login;
+package com.wusiko.game2048.ui.login;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
-import com.wusiko.test.data.LoginDataSource;
-import com.wusiko.test.data.LoginRepository;
+import com.wusiko.game2048.data.LoginDataSource;
+import com.wusiko.game2048.data.LoginRepository;
 
 /**
  * ViewModel provider factory to instantiate LoginViewModel.

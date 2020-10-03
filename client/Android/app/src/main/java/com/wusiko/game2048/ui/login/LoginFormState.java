@@ -1,4 +1,4 @@
-package com.wusiko.test.ui.login;
+package com.wusiko.game2048.ui.login;
 
 import androidx.annotation.Nullable;
 

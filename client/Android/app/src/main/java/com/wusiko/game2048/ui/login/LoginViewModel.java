@@ -1,24 +1,32 @@
-package com.wusiko.test.ui.login;
-
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+package com.wusiko.game2048.ui.login;
 
 import android.util.Patterns;
 
-import com.wusiko.test.data.LoginRepository;
-import com.wusiko.test.data.Result;
-import com.wusiko.test.data.model.LoggedInUser;
-import com.wusiko.test.R;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+
+import com.wusiko.game2048.R;
+import com.wusiko.game2048.data.LoginRepository;
+import com.wusiko.game2048.data.Result;
+import com.wusiko.game2048.data.model.LoggedInUser;
+
+import java.lang.ref.WeakReference;
 
 public class LoginViewModel extends ViewModel {
-
+    private WeakReference<LoginActivity> mActivity;
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
     private LoginRepository loginRepository;
+    private Observer<Result<LoggedInUser>> mObserver = null;
 
-    LoginViewModel(LoginRepository loginRepository) {
+    LoginViewModel(final LoginRepository loginRepository) {
         this.loginRepository = loginRepository;
+    }
+
+    public void setActivity(LoginActivity activity) {
+        mActivity = new WeakReference<>(activity);
     }
 
     LiveData<LoginFormState> getLoginFormState() {
@@ -30,15 +38,31 @@ public class LoginViewModel extends ViewModel {
     }
 
     public void login(String username, String password) {
-        // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = loginRepository.login(username, password);
-
-        if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
-        } else {
-            loginResult.setValue(new LoginResult(R.string.login_failed));
+        LoginActivity activity = null;
+        if (mActivity != null) {
+            activity = mActivity.get();
         }
+        if (activity == null) {
+            return;
+        }
+
+        if (mObserver == null) {
+            mObserver = new Observer<Result<LoggedInUser>>() {
+                @Override
+                public void onChanged(Result<LoggedInUser> result) {
+                    if (result instanceof Result.Success) {
+                        LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
+                        loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
+                    } else {
+                        loginResult.setValue(new LoginResult(R.string.login_failed));
+                    }
+                    loginRepository.getLoginResult().removeObserver(mObserver);
+                }
+            };
+        }
+
+        loginRepository.getLoginResult().observe(activity, mObserver);
+        loginRepository.login(username, password);
     }
 
     public void loginDataChanged(String username, String password) {

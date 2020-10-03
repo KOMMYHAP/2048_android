@@ -1,6 +1,9 @@
-package com.wusiko.test.data;
+package com.wusiko.game2048.data;
 
-import com.wusiko.test.data.model.LoggedInUser;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.wusiko.game2048.data.model.LoggedInUser;
 
 /**
  * Class that requests authentication and user information from the remote data source and
@@ -8,9 +11,10 @@ import com.wusiko.test.data.model.LoggedInUser;
  */
 public class LoginRepository {
 
-    private static volatile LoginRepository instance;
-
-    private LoginDataSource dataSource;
+    private static volatile LoginRepository mInstance;
+    private MutableLiveData<Result<LoggedInUser>> mLoginResult = new MutableLiveData<>();
+    private LoginDataSource mDataSource;
+    private boolean mIsLogging = false;
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
@@ -18,23 +22,31 @@ public class LoginRepository {
 
     // private constructor : singleton access
     private LoginRepository(LoginDataSource dataSource) {
-        this.dataSource = dataSource;
+        this.mDataSource = dataSource;
     }
 
     public static LoginRepository getInstance(LoginDataSource dataSource) {
-        if (instance == null) {
-            instance = new LoginRepository(dataSource);
+        if (mInstance == null) {
+            mInstance = new LoginRepository(dataSource);
         }
-        return instance;
+        return mInstance;
     }
 
     public boolean isLoggedIn() {
         return user != null;
     }
 
+    public synchronized boolean isLogging() {
+        return mIsLogging;
+    }
+
+    private synchronized void setLogging(boolean value) {
+        mIsLogging = value;
+    }
+
     public void logout() {
         user = null;
-        dataSource.logout();
+        mDataSource.logout();
     }
 
     private void setLoggedInUser(LoggedInUser user) {
@@ -43,12 +55,22 @@ public class LoginRepository {
         // @see https://developer.android.com/training/articles/keystore
     }
 
-    public Result<LoggedInUser> login(String username, String password) {
-        // handle login
-        Result<LoggedInUser> result = dataSource.login(username, password);
-        if (result instanceof Result.Success) {
-            setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+    public LiveData<Result<LoggedInUser>> getLoginResult() {
+        return mLoginResult;
+    }
+
+    public void login(final String username, final String password) {
+        if (isLoggedIn() || isLogging()) {
+            return;
         }
-        return result;
+        setLogging(true);
+        { // async task here
+            Result<LoggedInUser> result = mDataSource.login(username, password);
+            if (result instanceof Result.Success) {
+                setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+            }
+            mLoginResult.setValue(result);
+            setLogging(false);
+        }
     }
 }

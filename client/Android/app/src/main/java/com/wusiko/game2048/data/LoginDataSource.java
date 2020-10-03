@@ -1,6 +1,6 @@
-package com.wusiko.test.data;
+package com.wusiko.game2048.data;
 
-import com.wusiko.test.data.model.LoggedInUser;
+import com.wusiko.game2048.data.model.LoggedInUser;
 
 import java.io.IOException;
 
@@ -10,6 +10,14 @@ import java.io.IOException;
 public class LoginDataSource {
 
     public Result<LoggedInUser> login(String username, String password) {
+//        try {
+//            HttpClient client = HttpClient
+//            URL url = new URL("https://google.com/");
+//            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
         try {
             // TODO: handle loggedInUser authentication
             LoggedInUser fakeUser =
