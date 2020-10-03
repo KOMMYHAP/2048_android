@@ -10,16 +10,11 @@ import java.io.IOException;
 public class LoginDataSource {
 
     public Result<LoggedInUser> login(String username, String password) {
-//        try {
-//            HttpClient client = HttpClient
-//            URL url = new URL("https://google.com/");
-//            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
         try {
             // TODO: handle loggedInUser authentication
+            // fake awaiting of server
+            Thread.sleep(5000);
+
             LoggedInUser fakeUser =
                     new LoggedInUser(
                             java.util.UUID.randomUUID().toString(),

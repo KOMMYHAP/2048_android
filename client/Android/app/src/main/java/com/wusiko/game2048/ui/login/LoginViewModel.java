@@ -36,6 +36,9 @@ public class LoginViewModel extends ViewModel {
     LiveData<LoginResult> getLoginResult() {
         return loginResult;
     }
+    public boolean isLoggedIn() {
+        return loginRepository.isLoggedIn();
+    }
 
     public void login(String username, String password) {
         LoginActivity activity = null;

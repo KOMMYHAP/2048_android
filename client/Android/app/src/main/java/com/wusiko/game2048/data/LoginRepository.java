@@ -5,29 +5,33 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.wusiko.game2048.data.model.LoggedInUser;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
+
 /**
  * Class that requests authentication and user information from the remote data source and
  * maintains an in-memory cache of login status and user credentials information.
  */
 public class LoginRepository {
-
     private static volatile LoginRepository mInstance;
     private MutableLiveData<Result<LoggedInUser>> mLoginResult = new MutableLiveData<>();
     private LoginDataSource mDataSource;
-    private boolean mIsLogging = false;
-
+    private Executor mLoginExecutor = null;
+    private FutureTask<?> mLoginTask = null;
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
     private LoggedInUser user = null;
 
     // private constructor : singleton access
-    private LoginRepository(LoginDataSource dataSource) {
-        this.mDataSource = dataSource;
+    private LoginRepository(LoginDataSource dataSource, Executor loginExecutor) {
+        mDataSource = dataSource;
+        mLoginExecutor = loginExecutor;
     }
 
-    public static LoginRepository getInstance(LoginDataSource dataSource) {
+    public static LoginRepository getInstance(LoginDataSource dataSource, Executor loginExecutor) {
         if (mInstance == null) {
-            mInstance = new LoginRepository(dataSource);
+            mInstance = new LoginRepository(dataSource, loginExecutor);
         }
         return mInstance;
     }
@@ -36,15 +40,15 @@ public class LoginRepository {
         return user != null;
     }
 
-    public synchronized boolean isLogging() {
-        return mIsLogging;
-    }
-
-    private synchronized void setLogging(boolean value) {
-        mIsLogging = value;
+    public boolean isLogging() {
+        return mLoginTask != null && !mLoginTask.isDone() && !mLoginTask.isCancelled();
     }
 
     public void logout() {
+        if (!isLoggedIn() || isLogging()) {
+            return;
+        }
+
         user = null;
         mDataSource.logout();
     }
@@ -63,14 +67,18 @@ public class LoginRepository {
         if (isLoggedIn() || isLogging()) {
             return;
         }
-        setLogging(true);
-        { // async task here
-            Result<LoggedInUser> result = mDataSource.login(username, password);
-            if (result instanceof Result.Success) {
-                setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+
+        mLoginTask = new FutureTask<>(new Callable<Void>() {
+            @Override
+            public Void call() {
+                Result<LoggedInUser> result = mDataSource.login(username, password);
+                if (result instanceof Result.Success) {
+                    setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+                }
+                mLoginResult.postValue(result);
+                return null;
             }
-            mLoginResult.setValue(result);
-            setLogging(false);
-        }
+        });
+        mLoginExecutor.execute(mLoginTask);
     }
 }
