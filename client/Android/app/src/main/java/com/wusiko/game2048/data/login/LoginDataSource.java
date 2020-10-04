@@ -11,7 +11,7 @@ public class LoginDataSource {
         try {
             // TODO: handle loggedInUser authentication
             // fake awaiting of server
-            Thread.sleep(5000);
+//            Thread.sleep(5000);
 
             LoggedInUser fakeUser =
                     new LoggedInUser(
