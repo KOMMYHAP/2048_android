@@ -1,6 +1,7 @@
 package com.wusiko.game2048.ui.login;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,6 +21,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.wusiko.game2048.R;
+import com.wusiko.game2048.ui.game.GameActivity;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText mUsernameEditText = null;
@@ -117,6 +119,8 @@ public class LoginActivity extends AppCompatActivity {
         { // TODO: switch on game activity
             setResult(Activity.RESULT_OK);
             finish();
+            Intent intent = new Intent(this, GameActivity.class);
+            startActivity(intent);
         }
     }
 

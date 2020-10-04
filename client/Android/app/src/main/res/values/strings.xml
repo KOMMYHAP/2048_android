@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">2048</string>
     <!-- Strings related to login -->
+    <string name="title_activity_menu">Main Menu</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in or register</string>
@@ -9,4 +10,12 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+
+    <!-- Strings related to game -->
+    <string name="game_button_desc_close">"Close"</string>
+    <string name="game_text_hint_scores">"Scores"</string>
+    <string name="game_text_scores">"Scores: %scores%"</string>
+    <string name="title_activity_game">2048</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
