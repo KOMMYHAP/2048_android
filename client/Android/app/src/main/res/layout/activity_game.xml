@@ -9,7 +9,7 @@
     tools:context=".ui.game.GameActivity">
 
     <TextView
-        android:id="@+id/fullscreen_content"
+        android:id="@+id/score_text"
         android:layout_width="409dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="1dp"
