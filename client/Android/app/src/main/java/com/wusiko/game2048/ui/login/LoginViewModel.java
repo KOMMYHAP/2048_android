@@ -14,86 +14,104 @@ import com.wusiko.game2048.data.login.LoggedInUser;
 
 import java.lang.ref.WeakReference;
 
-public class LoginViewModel extends ViewModel {
-    private WeakReference<LoginActivity> mActivity;
-    private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
-    private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
-    private LoginRepository loginRepository;
-    private Observer<Result<LoggedInUser>> mObserver = null;
+public class LoginViewModel extends ViewModel
+{
+	private WeakReference<LoginActivity> mActivity;
+	private final MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
+	private final MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
+	private final LoginRepository loginRepository;
+	private Observer<Result<LoggedInUser>> mObserver = null;
 
-    LoginViewModel(final LoginRepository loginRepository) {
-        this.loginRepository = loginRepository;
-    }
+	LoginViewModel(final LoginRepository loginRepository)
+	{
+		this.loginRepository = loginRepository;
+	}
 
-    public void setActivity(LoginActivity activity) {
-        mActivity = new WeakReference<>(activity);
-    }
+	public void setActivity(LoginActivity activity)
+	{
+		mActivity = new WeakReference<>(activity);
+	}
 
-    LiveData<LoginFormState> getLoginFormState() {
-        return loginFormState;
-    }
+	LiveData<LoginFormState> getLoginFormState()
+	{
+		return loginFormState;
+	}
 
-    LiveData<LoginResult> getLoginResult() {
-        return loginResult;
-    }
-    public boolean isLoggedIn() {
-        return loginRepository.isLoggedIn();
-    }
+	LiveData<LoginResult> getLoginResult()
+	{
+		return loginResult;
+	}
 
-    public void login(String username, String password) {
-        LoginActivity activity = null;
-        if (mActivity != null) {
-            activity = mActivity.get();
-        }
-        if (activity == null) {
-            return;
-        }
+	public boolean isLoggedIn()
+	{
+		return loginRepository.isLoggedIn();
+	}
 
-        if (mObserver == null) {
-            mObserver = new Observer<Result<LoggedInUser>>() {
-                @Override
-                public void onChanged(Result<LoggedInUser> result) {
-                    if (result instanceof Result.Success) {
-                        LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-                        loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
-                    } else {
-                        loginResult.setValue(new LoginResult(R.string.login_failed));
-                    }
-                    loginRepository.getLoginResult().removeObserver(mObserver);
-                }
-            };
-        }
+	public void login(String username, String password)
+	{
+		LoginActivity activity = null;
+		if (mActivity != null)
+		{
+			activity = mActivity.get();
+		}
+		if (activity == null)
+		{
+			return;
+		}
 
-        loginRepository.getLoginResult().observe(activity, mObserver);
-        loginRepository.login(username, password);
-    }
+		if (mObserver == null)
+		{
+			mObserver = new Observer<Result<LoggedInUser>>()
+			{
+				@Override
+				public void onChanged(Result<LoggedInUser> result)
+				{
+					if (result instanceof Result.Success)
+					{
+						LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
+						loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
+					} else
+					{
+						loginResult.setValue(new LoginResult(R.string.login_failed));
+					}
+					loginRepository.getLoginResult().removeObserver(mObserver);
+				}
+			};
+		}
 
-    public void loginDataChanged(String username, String password) {
-        if (!isUserNameValid(username)) {
-            loginFormState.setValue(new LoginFormState(R.string.invalid_username, null));
-        } else if (!isPasswordValid(password)) {
-            loginFormState.setValue(new LoginFormState(null, R.string.invalid_password));
-        } else {
-            loginFormState.setValue(new LoginFormState(true));
-        }
-    }
+		loginRepository.getLoginResult().observe(activity, mObserver);
+		loginRepository.login(username, password);
+	}
 
-    // A placeholder username validation check
-    private boolean isUserNameValid(String username) {
-        if (username == null) {
-            return false;
-        }
-        return true;
+	public void loginDataChanged(String username, String password)
+	{
+		if (!isUserNameValid(username))
+		{
+			loginFormState.setValue(new LoginFormState(R.string.invalid_username, null));
+		} else if (!isPasswordValid(password))
+		{
+			loginFormState.setValue(new LoginFormState(null, R.string.invalid_password));
+		} else
+		{
+			loginFormState.setValue(new LoginFormState(true));
+		}
+	}
+
+	// A placeholder username validation check
+	private boolean isUserNameValid(String username)
+	{
+        return username != null;
 //        if (username.contains("@")) {
 //            return Patterns.EMAIL_ADDRESS.matcher(username).matches();
 //        } else {
 //            return !username.trim().isEmpty();
 //        }
-    }
+	}
 
-    // A placeholder password validation check
-    private boolean isPasswordValid(String password) {
-        return true;
+	// A placeholder password validation check
+	private boolean isPasswordValid(String password)
+	{
+		return true;
 //        return password != null && password.trim().length() > 5;
-    }
+	}
 }
