@@ -24,6 +24,7 @@ public class GameBoard
 
 	public void StartGame()
 	{
+		ClearUpdatedTiles();
 		mGameField = new GameTile[GameConfig.TILE_SPAWN_AT_START];
 		for (int i = 0; i < GameConfig.TILE_SPAWN_AT_START; i++)
 		{
@@ -31,22 +32,34 @@ public class GameBoard
 		}
 	}
 
-	public TileLinkContainer GetGameTileLinks()
+	public TileLinkContainer GetUpdatedTileLinks()
 	{
 		return mTileLinks;
 	}
 
 	public void MoveLeft()
 	{
+		ClearUpdatedTiles();
 	}
+
 	public void MoveRight()
 	{
+		ClearUpdatedTiles();
 	}
+
 	public void MoveUp()
 	{
+		ClearUpdatedTiles();
 	}
+
 	public void MoveDown()
 	{
+		ClearUpdatedTiles();
+	}
+
+	private void ClearUpdatedTiles()
+	{
+		mTileLinks.Clear();
 	}
 
 	@Nullable

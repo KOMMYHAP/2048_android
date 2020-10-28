@@ -10,6 +10,13 @@ public class TileLinkContainer
 	private final ArrayList<MergedTileLink> mMerged = new ArrayList<MergedTileLink>();
 	private final ArrayList<MovedTileLink> mMoved = new ArrayList<MovedTileLink>();
 
+	public void Clear()
+	{
+		mCreated.clear();
+		mMerged.clear();
+		mMoved.clear();
+	}
+
 	public void Add(CreatedTileLink link)
 	{
 		mCreated.add(link);
