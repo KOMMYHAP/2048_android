@@ -12,11 +12,11 @@ public class GameBoard
 	private final GameTileFactory mGameTileFactory = new GameTileFactory(GameConfig.TILE_PROBABILITIES, mRandom);
 	private GameTile[] mGameField;
 	private final TileLinkContainer mTileLinks = new TileLinkContainer();
-	private byte mTilesBitMap;
+	private int mTilesBitMap;
 
 	public GameBoard()
 	{
-		if (GameConfig.FIELD_SIZE > 256)
+		if (GameConfig.FIELD_SIZE > 32)
 		{
 			throw new RuntimeException("Invalid number of field size: the biggest size is 256!");
 		}
