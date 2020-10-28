@@ -18,5 +18,5 @@ public class GameConfig {
             0.0005f,      // tile 1024
     };
     public static final float TILE_PROBABILITIES_PRECISION = 0.0001f;
-    public static final int TILE_SPAWN_AT_START = 3;
+    public static final int TILE_SPAWN_AT_START = 16;
 }

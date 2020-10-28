@@ -2,7 +2,11 @@ package com.wusiko.game2048.ui.game;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -10,10 +14,15 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.wusiko.game2048.R;
 import com.wusiko.game2048.data.game.CreatedTileLink;
+import com.wusiko.game2048.data.game.GameConfig;
+import com.wusiko.game2048.data.game.GameTile;
 import com.wusiko.game2048.data.game.MergedTileLink;
 import com.wusiko.game2048.data.game.MovedTileLink;
 import com.wusiko.game2048.ui.utils.OnSwipeTouchListener;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,6 +32,7 @@ import java.util.List;
 public class GameActivity extends AppCompatActivity {
     private final String TAG = "GameActivity";
     private GameViewModel mGameViewModel;
+    private final HashMap<Integer, GameTileView> mImagesByIndex = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +77,7 @@ public class GameActivity extends AppCompatActivity {
                 	int value = link.GetTile().getValue();
                     int[] pos = link.GetTile().getPosition();
                     Log.i(TAG, String.format("Tile created: %d (%d; %d)", value, pos[0], pos[1]));
-
-					// todo: animate it
+					OnCreateTile(link);
                 }
             }
         });
@@ -116,6 +125,16 @@ public class GameActivity extends AppCompatActivity {
 			}
 		});
 
+		int maxY = GameConfig.FIELD_SIZE_Y;
+		int maxX = GameConfig.FIELD_SIZE_X;
+		for (int y = 0; y < maxY; y++)
+		{
+			for (int x = 0; x < maxX; x++)
+			{
+				mImagesByIndex.put(ToImageIndex(x, y), new GameTileView(this));
+			}
+		}
+
         // Note that some of these constants are new as of API 16 (Jelly Bean)
         // and API 19 (KitKat). It is safe to use them, as they are inlined
         // at compile-time and do nothing on earlier devices.
@@ -137,5 +156,30 @@ public class GameActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
     }
+
+    private static int ToImageIndex(int x, int y)
+	{
+		return x + y * GameConfig.FIELD_SIZE_X;
+	}
+
+    private void OnCreateTile(@NotNull CreatedTileLink link)
+	{
+		GameTile tile = link.GetTile();
+		int[] pos = tile.getPosition();
+		GameTileView view = mImagesByIndex.get(ToImageIndex(pos[0], pos[1]));
+		view.SetTile(tile);
+
+		ImageView imageView = view.GetImageView();
+		float factor = getResources().getDisplayMetrics().density;
+		int w = (int)(64 * factor);
+		int h = (int)(64 * factor);
+		imageView.setLayoutParams(new FrameLayout.LayoutParams(w, h));
+		imageView.setImageResource(R.drawable.test);
+		imageView.setTranslationX((8 + (8 + 64) * pos[0]) * factor);
+		imageView.setTranslationY((8 + (8 + 64) * pos[1]) * factor);
+
+		ViewGroup parent = findViewById(R.id.frameLayout);
+		parent.addView(imageView);
+	}
 
 }
