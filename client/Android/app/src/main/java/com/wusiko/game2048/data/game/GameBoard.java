@@ -36,20 +36,17 @@ public class GameBoard
 		return mTileLinks;
 	}
 
-	private void Move(Direction direction)
+	public void MoveLeft()
 	{
-		// todo
-		switch (direction)
-		{
-			case Left:
-				break;
-			case Right:
-				break;
-			case Up:
-				break;
-			case Down:
-				break;
-		}
+	}
+	public void MoveRight()
+	{
+	}
+	public void MoveUp()
+	{
+	}
+	public void MoveDown()
+	{
 	}
 
 	@Nullable
@@ -118,10 +115,5 @@ public class GameBoard
 			}
 		}
 		return -1;
-	}
-
-	private enum Direction
-	{
-		Left, Right, Up, Down
 	}
 }
