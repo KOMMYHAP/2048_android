@@ -41,6 +41,7 @@ public class GameTileFactory
 			{
 				break;
 			}
+			currentProb += p;
 			degree += 1;
 		}
 
