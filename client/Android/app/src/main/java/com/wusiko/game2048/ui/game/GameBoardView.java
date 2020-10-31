@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -31,6 +32,8 @@ public class GameBoardView extends View
 	private final HashMap<Integer, GameTileView> mTileViewsByIndex = new HashMap<>(GameConfig.TILES_NUMBER);
 	private final FrameLayout mBoardLayout;
 	private final FrameLayout mSizeHelperLayout;
+	private final TextView mScoresView;
+	private final TextView mHighScoresView;
 	private final Context mContext;
 	private final GameBoardViewModel mGameBoardViewModel;
 	private int mTileSize;
@@ -131,6 +134,28 @@ public class GameBoardView extends View
 
 					// todo: animate it
 				}
+			}
+		});
+
+		mScoresView = activity.findViewById(R.id.text_scores);
+		mGameBoardViewModel.GetScores().observe(activity, new Observer<Integer>()
+		{
+			@Override
+			public void onChanged(Integer integer)
+			{
+				String text = activity.getResources().getString(R.string.game_text_scores);
+				mScoresView.setText(text.replace("%scores%", integer.toString()));
+			}
+		});
+
+		mHighScoresView = activity.findViewById(R.id.text_high_scores);
+		mGameBoardViewModel.GetHighScores().observe(activity, new Observer<Integer>()
+		{
+			@Override
+			public void onChanged(Integer integer)
+			{
+				String text = activity.getResources().getString(R.string.game_text_high_scores);
+				mHighScoresView.setText(text.replace("%scores%", integer.toString()));
 			}
 		});
 

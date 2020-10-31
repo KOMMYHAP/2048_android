@@ -13,6 +13,7 @@ public class GameBoard
 	private GameTile[] mGameField;
 	private final TileLinkContainer mTileLinks = new TileLinkContainer();
 	private int mTilesBitMap;
+	private int mScores = 0;
 
 	public GameBoard()
 	{
@@ -134,5 +135,10 @@ public class GameBoard
 			}
 		}
 		return -1;
+	}
+
+	public int GetScores()
+	{
+		return mScores;
 	}
 }

@@ -22,9 +22,14 @@ public class GameBoardViewModel extends ViewModel
 	private final MutableLiveData<List<MovedTileLink>> mMovedTiles = new MutableLiveData<>();
 	private final MutableLiveData<List<MergedTileLink>> mMergedTiles = new MutableLiveData<>();
 
+	private final MutableLiveData<Integer> mScores = new MutableLiveData<>();
+	private final MutableLiveData<Integer> mHighScores = new MutableLiveData<>();
+
 	public GameBoardViewModel(GameBoard gameBoard)
 	{
 		mGameBoard = gameBoard;
+		mScores.setValue(0);
+		mHighScores.setValue(0);
 	}
 
 	public LiveData<List<CreatedTileLink>> GetCreatedTiles()
@@ -40,6 +45,16 @@ public class GameBoardViewModel extends ViewModel
 	public LiveData<List<MergedTileLink>> GetMergedTiles()
 	{
 		return mMergedTiles;
+	}
+
+	public LiveData<Integer> GetScores()
+	{
+		return mScores;
+	}
+
+	public LiveData<Integer> GetHighScores()
+	{
+		return mHighScores;
 	}
 
 	public void OnMoveUp()
@@ -84,6 +99,7 @@ public class GameBoardViewModel extends ViewModel
 		mCreatedTiles.setValue(links.GetCreatedTiles());
 		mMovedTiles.setValue(links.GetMovedTiles());
 		mMergedTiles.setValue(links.GetMergedTiles());
+		mScores.setValue(mGameBoard.GetScores());
 	}
 
 }
