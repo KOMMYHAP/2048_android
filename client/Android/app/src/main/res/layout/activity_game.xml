@@ -8,198 +8,83 @@
     android:background="#0099cc"
     tools:context=".ui.game.GameActivity">
 
-    <TextView
-        android:id="@+id/score_text"
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:layout_marginLeft="1dp"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:text="@string/game_text_scores"
-        android:textColor="#33b5e5"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <FrameLayout
-        android:id="@+id/frameLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="239dp"
-        android:layout_marginBottom="98dp"
-        android:background="#9BD8EC"
-        android:minWidth="296dp"
-        android:minHeight="296dp"
+        android:id="@+id/boardSizeHelperLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="#DA1C1C"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
-        <ImageView
-            android:id="@+id/image_1"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="0dp"
-            android:translationY="0dp"
-            tools:srcCompat="@tools:sample/avatars" />
+        <FrameLayout
+            android:id="@+id/boardLayout"
+            android:layout_width="222dp"
+            android:layout_height="111dp"
+            android:layout_marginTop="0dp"
+            android:background="#9BD8EC"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/image_2"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="72dp"
-            android:translationY="0dp"
-            tools:srcCompat="@tools:sample/avatars" />
+            <ImageView
+                android:id="@+id/tile_image"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="8dp"
+                android:contentDescription="@string/game_image_desc_cell"
+                android:translationX="0dp"
+                android:translationY="0dp"
+                tools:srcCompat="@tools:sample/avatars" />
 
-        <ImageView
-            android:id="@+id/image_3"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="144dp"
-            android:translationY="0dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_4"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="216dp"
-            android:translationY="0dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_5"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="0dp"
-            android:translationY="72dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_6"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="72dp"
-            android:translationY="72dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_7"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="144dp"
-            android:translationY="72dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_8"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="216dp"
-            android:translationY="72dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_9"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="0dp"
-            android:translationY="144dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_10"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="72dp"
-            android:translationY="144dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_11"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="144dp"
-            android:translationY="144dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_12"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="216dp"
-            android:translationY="144dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_13"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="0dp"
-            android:translationY="216dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_14"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="72dp"
-            android:translationY="216dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_15"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="144dp"
-            android:translationY="216dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/image_16"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/game_image_desc_cell"
-            android:translationX="216dp"
-            android:translationY="216dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
+        </FrameLayout>
     </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/text_scores"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/game_text_scores"
+            android:textColor="#33b5e5"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/text_high_scores"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/game_text_high_scores"
+            android:textColor="#33b5e5"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_scores" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

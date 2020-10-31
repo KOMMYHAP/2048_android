@@ -1,86 +1,80 @@
 package com.wusiko.game2048.ui.game;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.wusiko.game2048.R;
 import com.wusiko.game2048.data.game.CreatedTileLink;
-import com.wusiko.game2048.data.game.GameConfig;
-import com.wusiko.game2048.data.game.GameTile;
 import com.wusiko.game2048.data.game.MergedTileLink;
 import com.wusiko.game2048.data.game.MovedTileLink;
 import com.wusiko.game2048.ui.utils.OnSwipeTouchListener;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
 import java.util.List;
+import java.lang.Math;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class GameActivity extends AppCompatActivity {
-    private final String TAG = "GameActivity";
-    private GameViewModel mGameViewModel;
-    private final HashMap<Integer, GameTileView> mImagesByIndex = new HashMap<>();
+public class GameActivity extends AppCompatActivity
+{
+	private final String TAG = "GameActivity";
+	private GameViewModel mGameViewModel;
+	private GameBoardView mGameBoardView;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
-        mGameViewModel = new ViewModelProvider(this, new GameViewModelFactory()).get(GameViewModel.class);
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_game);
+		mGameViewModel = new ViewModelProvider(this, new GameViewModelFactory()).get(GameViewModel.class);
 
-        getWindow().getDecorView().setOnTouchListener(new OnSwipeTouchListener(this)
-        {
-            @Override
-            public void onSwipeBottom()
-            {
-                mGameViewModel.OnMoveDown();
-            }
+		getWindow().getDecorView().setOnTouchListener(new OnSwipeTouchListener(this)
+		{
+			@Override
+			public void onSwipeBottom()
+			{
+				mGameViewModel.OnMoveDown();
+			}
 
-            @Override
-            public void onSwipeRight()
-            {
-                mGameViewModel.OnMoveRight();
-            }
+			@Override
+			public void onSwipeRight()
+			{
+				mGameViewModel.OnMoveRight();
+			}
 
-            @Override
-            public void onSwipeLeft()
-            {
-                mGameViewModel.OnMoveLeft();
-            }
+			@Override
+			public void onSwipeLeft()
+			{
+				mGameViewModel.OnMoveLeft();
+			}
 
-            @Override
-            public void onSwipeTop()
-            {
-                mGameViewModel.OnMoveUp();
-            }
-        });
+			@Override
+			public void onSwipeTop()
+			{
+				mGameViewModel.OnMoveUp();
+			}
+		});
 
-        mGameViewModel.GetCreatedTiles().observe(this, new Observer<List<CreatedTileLink>>()
-        {
-            @Override
-            public void onChanged(List<CreatedTileLink> createdTileLinks)
-            {
-                for (CreatedTileLink link : createdTileLinks)
-                {
-                	int value = link.GetTile().getValue();
-                    int[] pos = link.GetTile().getPosition();
-                    Log.i(TAG, String.format("Tile created: %d (%d; %d)", value, pos[0], pos[1]));
-					OnCreateTile(link);
-                }
-            }
-        });
+		mGameViewModel.GetCreatedTiles().observe(this, new Observer<List<CreatedTileLink>>()
+		{
+			@Override
+			public void onChanged(List<CreatedTileLink> createdTileLinks)
+			{
+				for (CreatedTileLink link : createdTileLinks)
+				{
+					mGameBoardView.CreateTile(link);
+				}
+			}
+		});
 
 		mGameViewModel.GetMergedTiles().observe(this, new Observer<List<MergedTileLink>>()
 		{
@@ -125,61 +119,63 @@ public class GameActivity extends AppCompatActivity {
 			}
 		});
 
-		int maxY = GameConfig.FIELD_SIZE_Y;
-		int maxX = GameConfig.FIELD_SIZE_X;
-		for (int y = 0; y < maxY; y++)
+		FrameLayout boardLayout = findViewById(R.id.boardLayout);
+		mGameBoardView = new GameBoardView(this, boardLayout);
+
+		// Apply resizing only when view will be created:
+		FrameLayout boardSizeHelperLayout = findViewById(R.id.boardSizeHelperLayout);
+		boardSizeHelperLayout.post(new Runnable()
 		{
-			for (int x = 0; x < maxX; x++)
+			@Override
+			public void run()
 			{
-				mImagesByIndex.put(ToImageIndex(x, y), new GameTileView(this));
+				ResizeBoardView();
 			}
-		}
+		});
 
-        // Note that some of these constants are new as of API 16 (Jelly Bean)
-        // and API 19 (KitKat). It is safe to use them, as they are inlined
-        // at compile-time and do nothing on earlier devices.
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+		// Note that some of these constants are new as of API 16 (Jelly Bean)
+		// and API 19 (KitKat). It is safe to use them, as they are inlined
+		// at compile-time and do nothing on earlier devices.
+		getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+				| View.SYSTEM_UI_FLAG_FULLSCREEN
+				| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+				| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+				| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 
-        mGameViewModel.OnRestart();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility()
-                | View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-    }
-
-    private static int ToImageIndex(int x, int y)
-	{
-		return x + y * GameConfig.FIELD_SIZE_X;
+		mGameViewModel.OnRestart();
 	}
 
-    private void OnCreateTile(@NotNull CreatedTileLink link)
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration newConfig)
 	{
-		GameTile tile = link.GetTile();
-		int[] pos = tile.getPosition();
-		GameTileView view = mImagesByIndex.get(ToImageIndex(pos[0], pos[1]));
-		view.SetTile(tile);
+		super.onConfigurationChanged(newConfig);
 
-		ImageView imageView = view.GetImageView();
-		float factor = getResources().getDisplayMetrics().density;
-		int w = (int)(64 * factor);
-		int h = (int)(64 * factor);
-		imageView.setLayoutParams(new FrameLayout.LayoutParams(w, h));
-		imageView.setImageResource(R.drawable.test);
-		imageView.setTranslationX((8 + (8 + 64) * pos[0]) * factor);
-		imageView.setTranslationY((8 + (8 + 64) * pos[1]) * factor);
+		if (mGameBoardView != null)
+		{
+			ResizeBoardView();
+		}
+	}
 
-		ViewGroup parent = findViewById(R.id.frameLayout);
-		parent.addView(imageView);
+	private void ResizeBoardView()
+	{
+		FrameLayout boardSizeHelperLayout = findViewById(R.id.boardSizeHelperLayout);
+		int w = boardSizeHelperLayout.getWidth();
+		int h = boardSizeHelperLayout.getHeight();
+		int size = Math.min(w, h);
+		FrameLayout boardLayout = findViewById(R.id.boardLayout);
+		boardLayout.setLayoutParams(new FrameLayout.LayoutParams(size, size));
+		mGameBoardView.OnResized();
+	}
+
+	@Override
+	protected void onStart()
+	{
+		super.onStart();
+		getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility()
+				| View.SYSTEM_UI_FLAG_LOW_PROFILE
+				| View.SYSTEM_UI_FLAG_FULLSCREEN
+				| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 	}
 
 }
