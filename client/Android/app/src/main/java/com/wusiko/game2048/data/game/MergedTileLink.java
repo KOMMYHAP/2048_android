@@ -27,4 +27,9 @@ public class MergedTileLink
 	{
 		return mTileResult;
 	}
+
+	public int GetScores()
+	{
+		return mTileResult.getValue() / 2;
+	}
 }

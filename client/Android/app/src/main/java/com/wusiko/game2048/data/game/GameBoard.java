@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Random;
 
 public class GameBoard
@@ -44,6 +45,11 @@ public class GameBoard
 		return mTileLinks;
 	}
 
+	public int GetScores()
+	{
+		return mScores;
+	}
+
 	public void MoveLeft()
 	{
 		ClearUpdatedTiles();
@@ -62,6 +68,22 @@ public class GameBoard
 	public void MoveDown()
 	{
 		ClearUpdatedTiles();
+	}
+
+	private void MoveCompleted()
+	{
+		UpdateScores();
+	}
+
+	private void UpdateScores()
+	{
+		int scores = 0;
+		List<MergedTileLink> mergedTileLinks = mTileLinks.GetMergedTiles();
+		for (MergedTileLink link : mergedTileLinks)
+		{
+			scores += link.GetScores();
+		}
+		mScores += scores;
 	}
 
 	private void ClearUpdatedTiles()
@@ -135,10 +157,5 @@ public class GameBoard
 			}
 		}
 		return -1;
-	}
-
-	public int GetScores()
-	{
-		return mScores;
 	}
 }
