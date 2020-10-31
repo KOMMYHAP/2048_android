@@ -15,6 +15,7 @@
     <string name="game_button_desc_close">"Close"</string>
     <string name="game_text_hint_scores">"Scores"</string>
     <string name="game_text_scores">"Scores: %scores%"</string>
+    <string name="game_text_high_scores">"High Scores: %scores%"</string>
     <string name="title_activity_game">2048</string>
     <string name="game_image_desc_cell">"A tile with some number"</string>
 </resources>
