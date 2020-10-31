@@ -1,7 +1,13 @@
 package com.wusiko.game2048.ui.game;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.widget.FrameLayout;
+
+import com.wusiko.game2048.R;
 import com.wusiko.game2048.data.game.GameTile;
+
+import org.jetbrains.annotations.NotNull;
 
 public class GameTileView extends androidx.appcompat.widget.AppCompatImageView
 {
@@ -16,8 +22,16 @@ public class GameTileView extends androidx.appcompat.widget.AppCompatImageView
 	{
 		return mTile;
 	}
-	public void SetTile(GameTile tile)
+
+	public void SetTile(@NotNull GameTile tile)
 	{
 		mTile = tile;
+		setImageResource(DegreeToResource(tile.getDegree()));
+	}
+
+	private static int DegreeToResource(int degree)
+	{
+		// stub
+		return R.drawable.test;
 	}
 }

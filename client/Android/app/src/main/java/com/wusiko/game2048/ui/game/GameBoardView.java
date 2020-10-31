@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressLint("ViewConstructor")
 public class GameBoardView extends View
@@ -35,23 +36,21 @@ public class GameBoardView extends View
 	private int mTileSize;
 	private int mTileMargin;
 
-	public GameBoardView(AppCompatActivity activity)
+	public GameBoardView(Context context)
 	{
-		super(activity);
-		mContext = activity;
+		super(context);
+		mContext = context;
+
+		if (!(context instanceof AppCompatActivity))
+		{
+			throw new RuntimeException("Unknown context class!");
+		}
+
+		final AppCompatActivity activity = (AppCompatActivity)(context);
+
 		mBoardLayout = activity.findViewById(R.id.boardLayout);
 		mSizeHelperLayout = activity.findViewById(R.id.boardSizeHelperLayout);
 		mGameBoardViewModel = new ViewModelProvider(activity, new GameBoardViewModelFactory()).get(GameBoardViewModel.class);
-
-		// Apply resizing only when view will be created:
-		mSizeHelperLayout.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Resize();
-			}
-		});
 
 		activity.getWindow().getDecorView().setOnTouchListener(new OnSwipeTouchListener(mContext)
 		{
@@ -135,22 +134,30 @@ public class GameBoardView extends View
 			}
 		});
 
-		mGameBoardViewModel.OnRestart();
+		// Apply resizing only when view will be created:
+		mSizeHelperLayout.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Resize();
+				mGameBoardViewModel.OnRestart();
+			}
+		});
 	}
 
 	public void Resize()
 	{
-		int w = mSizeHelperLayout.getWidth();
-		int h = mSizeHelperLayout.getHeight();
-		int size = Math.min(w, h);
-		mBoardLayout.setLayoutParams(new FrameLayout.LayoutParams(size, size));
+		final int boardSize = Math.min(mSizeHelperLayout.getWidth(), mSizeHelperLayout.getHeight());
+		mBoardLayout.setLayoutParams(new FrameLayout.LayoutParams(boardSize, boardSize));
 
-		final int boardSize = mBoardLayout.getLayoutParams().width;
-
-		// tile_margin + tile_n_in_a_row * (tile_margin + tile_size) = board_size
-		// tile_margin = tile_size / 8
+		// Algorithm to determine tile's size:
+		// {
+		//  tile_margin + tile_n_in_a_row * (tile_margin + tile_size) = board_size
+		//  tile_margin = tile_size / 8
+		// }
 		//   =>
-		// tile_size / 8 + tile_n_in_a_row * (9/8 * tile_size) = board_size
+		// tile_size / 8 + tile_n_in_a_row * (9 / 8 * tile_size) = board_size
 		//   =>
 		// tile_size + 9 * tile_n_in_a_row * tile_size = 8 * board_size
 		//   =>
@@ -170,6 +177,11 @@ public class GameBoardView extends View
 				boardSize,
 				mTileSize,
 				mTileMargin));
+
+		for (Map.Entry<Integer, GameTileView> entry: mTileViewsByIndex.entrySet())
+		{
+			UpdateGeometry(entry.getValue());
+		}
 	}
 
 	public void CreateTile(@NotNull CreatedTileLink link)
@@ -182,25 +194,18 @@ public class GameBoardView extends View
 		}
 
 		GameTileView tileView = new GameTileView(mContext);
-		tileView.setLayoutParams(new FrameLayout.LayoutParams(mTileSize, mTileSize));
-		tileView.setImageResource(R.drawable.test);
 		tileView.SetTile(link.GetTile());
+		UpdateGeometry(tileView);
 
-		final int[] screenPos = ToScreenPosition(boardPos[0], boardPos[1]);
-		tileView.setTranslationX(screenPos[0]);
-		tileView.setTranslationY(screenPos[1]);
-
-		mTileViewsByIndex.put(index, tileView);
 		mBoardLayout.addView(tileView);
+		mTileViewsByIndex.put(index, tileView);
 
 		Log.d(TAG, String.format(
 				"Tile created: \n" +
-						"    value = %d, \n" +
-						"    board pos = (%d; %d), \n" +
-						"    screen pos = (%d; %d).",
+				"    value = %d, \n" +
+				"    board pos = (%d; %d), \n",
 				link.GetTile().getValue(),
-				boardPos[0], boardPos[1],
-				screenPos[0], screenPos[1]));
+				boardPos[0], boardPos[1]));
 	}
 
 	private static int ToMappedIndex(int x, int y)
@@ -216,6 +221,16 @@ public class GameBoardView extends View
 				mTileMargin + x * (mTileSize + mTileMargin),
 				mTileMargin + y * (mTileSize + mTileMargin)
 		};
+	}
+
+	private void UpdateGeometry(@NotNull GameTileView tileView)
+	{
+		final int[] boardPos = tileView.GetTile().getPosition();
+		final int[] screenPos = ToScreenPosition(boardPos[0], boardPos[1]);
+
+		tileView.setLayoutParams(new FrameLayout.LayoutParams(mTileSize, mTileSize));
+		tileView.setTranslationX(screenPos[0]);
+		tileView.setTranslationY(screenPos[1]);
 	}
 }
 
