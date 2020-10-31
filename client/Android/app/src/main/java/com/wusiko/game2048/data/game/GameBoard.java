@@ -16,7 +16,7 @@ public class GameBoard
 
 	public GameBoard()
 	{
-		if (GameConfig.FIELD_SIZE > 32)
+		if (GameConfig.TILES_NUMBER > 32)
 		{
 			throw new RuntimeException("Invalid number of field size: the biggest size is 256!");
 		}
@@ -90,7 +90,7 @@ public class GameBoard
 
 	private int ToBitMapPosition(int x, int y)
 	{
-		return y * GameConfig.FIELD_SIZE_X + x;
+		return y * GameConfig.TILES_IN_A_ROW + x;
 	}
 
 	@NotNull
@@ -111,7 +111,7 @@ public class GameBoard
 	private int NumberOfFreePositions()
 	{
 		int n = 0;
-		for (int i = 0; i < GameConfig.FIELD_SIZE; i++)
+		for (int i = 0; i < GameConfig.TILES_NUMBER; i++)
 		{
 			n += IsPositionFree(i) ? 1 : 0;
 		}
@@ -120,7 +120,7 @@ public class GameBoard
 
 	private int GetNextFreePosition(int startPosition)
 	{
-		for (int i = startPosition; i < GameConfig.FIELD_SIZE; i++)
+		for (int i = startPosition; i < GameConfig.TILES_NUMBER; i++)
 		{
 			if (IsPositionFree(i))
 			{

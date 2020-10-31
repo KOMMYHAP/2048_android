@@ -1,9 +1,8 @@
 package com.wusiko.game2048.data.game;
 
 public class GameConfig {
-    public static final int FIELD_SIZE_X = 4;
-    public static final int FIELD_SIZE_Y = 4;
-    public static final int FIELD_SIZE = FIELD_SIZE_X * FIELD_SIZE_Y;
+    public static final int TILES_IN_A_ROW = 4;
+    public static final int TILES_NUMBER = TILES_IN_A_ROW * TILES_IN_A_ROW;
 
     public static final float[] TILE_PROBABILITIES = new float[]{
             0.4500f,      // tile 2

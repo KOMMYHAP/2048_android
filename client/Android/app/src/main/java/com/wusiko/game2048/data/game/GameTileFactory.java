@@ -9,7 +9,7 @@ public class GameTileFactory
 
 	public GameTileFactory(final float[] probabilities, Random random)
 	{
-		if (probabilities == null || probabilities.length > GameConfig.FIELD_SIZE)
+		if (probabilities == null || probabilities.length > GameConfig.TILES_NUMBER)
 		{
 			throw new RuntimeException("Invalid probabilities of tile creation: too less or too much tiles!");
 		}

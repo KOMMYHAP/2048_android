@@ -7,13 +7,13 @@ public class GameTile
 
 	public GameTile(int x, int y, int value)
 	{
-		if (x < 0 || x >= GameConfig.FIELD_SIZE_X)
+		if (x < 0 || x >= GameConfig.TILES_IN_A_ROW)
 		{
 			throw new RuntimeException("Incorrect position for a tile: must be positive and less than {}!");
 		}
 		mPosition[0] = x;
 
-		if (y < 0 || y >= GameConfig.FIELD_SIZE_Y)
+		if (y < 0 || y >= GameConfig.TILES_IN_A_ROW)
 		{
 			throw new RuntimeException("Incorrect position for a tile: must be positive and less than {}!");
 		}
@@ -55,7 +55,7 @@ public class GameTile
 
 	public void moveUp()
 	{
-		mPosition[1] = Math.min(mPosition[1] + 1, GameConfig.FIELD_SIZE_Y - 1);
+		mPosition[1] = Math.min(mPosition[1] + 1, GameConfig.TILES_IN_A_ROW - 1);
 	}
 
 	public void moveDown()
@@ -70,7 +70,7 @@ public class GameTile
 
 	public void moveRight()
 	{
-		mPosition[0] = Math.min(mPosition[0] + 1, GameConfig.FIELD_SIZE_X - 1);
+		mPosition[0] = Math.min(mPosition[0] + 1, GameConfig.TILES_IN_A_ROW - 1);
 	}
 
 	public void Merged()
@@ -85,7 +85,7 @@ public class GameTile
 
 	public void setX(int x)
 	{
-		if (x >= 0 && x < GameConfig.FIELD_SIZE_X)
+		if (x >= 0 && x < GameConfig.TILES_IN_A_ROW)
 		{
 			mPosition[0] = x;
 		} else
@@ -101,7 +101,7 @@ public class GameTile
 
 	public void setY(int y)
 	{
-		if (y >= 0 && y < GameConfig.FIELD_SIZE_Y)
+		if (y >= 0 && y < GameConfig.TILES_IN_A_ROW)
 		{
 			mPosition[1] = y;
 		} else
