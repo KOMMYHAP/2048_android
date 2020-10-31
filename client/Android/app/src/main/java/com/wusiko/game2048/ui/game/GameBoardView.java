@@ -43,6 +43,7 @@ public class GameBoardView extends View
 		mSizeHelperLayout = activity.findViewById(R.id.boardSizeHelperLayout);
 		mGameBoardViewModel = new ViewModelProvider(activity, new GameBoardViewModelFactory()).get(GameBoardViewModel.class);
 
+		// Apply resizing only when view will be created:
 		mSizeHelperLayout.post(new Runnable()
 		{
 			@Override
