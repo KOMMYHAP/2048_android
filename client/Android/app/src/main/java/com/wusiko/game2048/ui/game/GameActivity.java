@@ -37,16 +37,6 @@ public class GameActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onConfigurationChanged(@NonNull Configuration newConfig)
-	{
-		super.onConfigurationChanged(newConfig);
-		if (mGameBoardView != null)
-		{
-			mGameBoardView.Resize();
-		}
-	}
-
-	@Override
 	protected void onStart()
 	{
 		super.onStart();
