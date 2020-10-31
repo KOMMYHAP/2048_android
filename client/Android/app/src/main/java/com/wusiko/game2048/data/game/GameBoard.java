@@ -24,12 +24,18 @@ public class GameBoard
 
 	public void StartGame()
 	{
-		ClearUpdatedTiles();
 		mGameField = new GameTile[GameConfig.TILE_SPAWN_AT_START];
 		for (int i = 0; i < GameConfig.TILE_SPAWN_AT_START; i++)
 		{
 			mGameField[i] = TryToCreateTile();
 		}
+	}
+
+	public void StopGame()
+	{
+		mGameField = null;
+		mTilesBitMap = 0;
+		ClearUpdatedTiles();
 	}
 
 	public TileLinkContainer GetUpdatedTileLinks()

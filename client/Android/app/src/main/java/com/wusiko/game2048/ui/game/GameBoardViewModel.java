@@ -73,6 +73,7 @@ public class GameBoardViewModel extends ViewModel
 	public void OnRestart()
 	{
 		Log.i(TAG, "game started");
+		mGameBoard.StopGame();
 		mGameBoard.StartGame();
 		mCreatedTiles.setValue(mGameBoard.GetUpdatedTileLinks().GetCreatedTiles());
 	}
