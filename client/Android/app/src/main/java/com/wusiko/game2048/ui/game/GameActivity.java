@@ -27,7 +27,7 @@ import java.lang.Math;
 public class GameActivity extends AppCompatActivity
 {
 	private final String TAG = "GameActivity";
-	private GameViewModel mGameViewModel;
+	private GameBoardViewModel mGameBoardViewModel;
 	private GameBoardView mGameBoardView;
 
 	@Override
@@ -35,36 +35,36 @@ public class GameActivity extends AppCompatActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
-		mGameViewModel = new ViewModelProvider(this, new GameViewModelFactory()).get(GameViewModel.class);
+		mGameBoardViewModel = new ViewModelProvider(this, new GameBoardViewModelFactory()).get(GameBoardViewModel.class);
 
 		getWindow().getDecorView().setOnTouchListener(new OnSwipeTouchListener(this)
 		{
 			@Override
 			public void onSwipeBottom()
 			{
-				mGameViewModel.OnMoveDown();
+				mGameBoardViewModel.OnMoveDown();
 			}
 
 			@Override
 			public void onSwipeRight()
 			{
-				mGameViewModel.OnMoveRight();
+				mGameBoardViewModel.OnMoveRight();
 			}
 
 			@Override
 			public void onSwipeLeft()
 			{
-				mGameViewModel.OnMoveLeft();
+				mGameBoardViewModel.OnMoveLeft();
 			}
 
 			@Override
 			public void onSwipeTop()
 			{
-				mGameViewModel.OnMoveUp();
+				mGameBoardViewModel.OnMoveUp();
 			}
 		});
 
-		mGameViewModel.GetCreatedTiles().observe(this, new Observer<List<CreatedTileLink>>()
+		mGameBoardViewModel.GetCreatedTiles().observe(this, new Observer<List<CreatedTileLink>>()
 		{
 			@Override
 			public void onChanged(List<CreatedTileLink> createdTileLinks)
@@ -76,7 +76,7 @@ public class GameActivity extends AppCompatActivity
 			}
 		});
 
-		mGameViewModel.GetMergedTiles().observe(this, new Observer<List<MergedTileLink>>()
+		mGameBoardViewModel.GetMergedTiles().observe(this, new Observer<List<MergedTileLink>>()
 		{
 			@Override
 			public void onChanged(List<MergedTileLink> mergedTileLinks)
@@ -100,7 +100,7 @@ public class GameActivity extends AppCompatActivity
 			}
 		});
 
-		mGameViewModel.GetMovedTiles().observe(this, new Observer<List<MovedTileLink>>()
+		mGameBoardViewModel.GetMovedTiles().observe(this, new Observer<List<MovedTileLink>>()
 		{
 			@Override
 			public void onChanged(List<MovedTileLink> movedTileLinks)
@@ -143,7 +143,7 @@ public class GameActivity extends AppCompatActivity
 				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
 				| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 
-		mGameViewModel.OnRestart();
+		mGameBoardViewModel.OnRestart();
 	}
 
 	@Override

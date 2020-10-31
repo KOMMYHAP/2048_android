@@ -14,7 +14,7 @@ import com.wusiko.game2048.data.game.TileLinkContainer;
 
 import java.util.List;
 
-public class GameViewModel extends ViewModel
+public class GameBoardViewModel extends ViewModel
 {
 	private final String TAG = "GameViewModel";
 	private final GameBoard mGameBoard;
@@ -22,7 +22,7 @@ public class GameViewModel extends ViewModel
 	private final MutableLiveData<List<MovedTileLink>> mMovedTiles = new MutableLiveData<>();
 	private final MutableLiveData<List<MergedTileLink>> mMergedTiles = new MutableLiveData<>();
 
-	public GameViewModel(GameBoard gameBoard)
+	public GameBoardViewModel(GameBoard gameBoard)
 	{
 		mGameBoard = gameBoard;
 	}
