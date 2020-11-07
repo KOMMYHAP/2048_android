@@ -1,5 +1,8 @@
 package com.wusiko.game2048.data.game;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 public class GameTile
 {
 	private int mDegree = 1;
@@ -9,13 +12,13 @@ public class GameTile
 	{
 		if (x < 0 || x >= GameConfig.TILES_IN_A_ROW)
 		{
-			throw new RuntimeException("Incorrect position for a tile: must be positive and less than {}!");
+			throw new RuntimeException(String.format("Incorrect position for a tile: must be positive and less than %d!", GameConfig.TILES_IN_A_ROW));
 		}
 		mPosition[0] = x;
 
 		if (y < 0 || y >= GameConfig.TILES_IN_A_ROW)
 		{
-			throw new RuntimeException("Incorrect position for a tile: must be positive and less than {}!");
+			throw new RuntimeException(String.format("Incorrect position for a tile: must be positive and less than %d!", GameConfig.TILES_IN_A_ROW));
 		}
 		mPosition[1] = y;
 
@@ -27,9 +30,16 @@ public class GameTile
 		mDegree = degree;
 	}
 
+	@NotNull
+	@Contract("_, _, _ -> new")
 	public static GameTile CreateWithDegree(int x, int y, int degree)
 	{
 		return new GameTile(x, y, 2 << degree);
+	}
+
+	public GameTile Merged()
+	{
+		return new GameTile(getX(), getY(), getValue() * 2);
 	}
 
 	private static int convertValueToDegree(int value)
@@ -71,11 +81,6 @@ public class GameTile
 	public void moveRight()
 	{
 		mPosition[0] = Math.min(mPosition[0] + 1, GameConfig.TILES_IN_A_ROW - 1);
-	}
-
-	public void Merged()
-	{
-		mDegree += 1;
 	}
 
 	public int getX()

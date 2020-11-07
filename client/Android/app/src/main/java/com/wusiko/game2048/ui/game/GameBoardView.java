@@ -227,8 +227,8 @@ public class GameBoardView extends View
 
 		Log.d(TAG, String.format(
 				"Tile created: \n" +
-				"    value = %d, \n" +
-				"    board pos = (%d; %d), \n",
+						"    value = %d, \n" +
+						"    board pos = (%d; %d), \n",
 				link.GetTile().getValue(),
 				boardPos[0], boardPos[1]));
 	}
