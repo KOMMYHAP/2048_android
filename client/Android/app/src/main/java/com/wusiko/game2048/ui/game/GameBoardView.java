@@ -38,6 +38,7 @@ public class GameBoardView extends View
 	private final GameBoardViewModel mGameBoardViewModel;
 	private int mTileSize;
 	private int mTileMargin;
+	private boolean mBoardLocked = false;
 
 	public GameBoardView(Context context)
 	{
@@ -60,25 +61,37 @@ public class GameBoardView extends View
 			@Override
 			public void onSwipeBottom()
 			{
-				mGameBoardViewModel.OnMoveDown();
+				if (!mBoardLocked)
+				{
+					mGameBoardViewModel.OnMoveDown();
+				}
 			}
 
 			@Override
 			public void onSwipeRight()
 			{
-				mGameBoardViewModel.OnMoveRight();
+				if (!mBoardLocked)
+				{
+					mGameBoardViewModel.OnMoveRight();
+				}
 			}
 
 			@Override
 			public void onSwipeLeft()
 			{
-				mGameBoardViewModel.OnMoveLeft();
+				if (!mBoardLocked)
+				{
+					mGameBoardViewModel.OnMoveLeft();
+				}
 			}
 
 			@Override
 			public void onSwipeTop()
 			{
-				mGameBoardViewModel.OnMoveUp();
+				if (!mBoardLocked)
+				{
+					mGameBoardViewModel.OnMoveUp();
+				}
 			}
 		});
 
