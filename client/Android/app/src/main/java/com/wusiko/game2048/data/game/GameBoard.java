@@ -194,6 +194,8 @@ public class GameBoard
 			{
 				// in other case merges right tile to the left
 				MergeTiles(tileL, tileR);
+				row[r] = null;
+				l = r + 1;
 			}
 		}
 
@@ -208,7 +210,7 @@ public class GameBoard
 			}
 
 			// finds first not null tile
-			if (x < place)
+			if (x <= place)
 			{
 				x = place + 1;
 			}
@@ -220,6 +222,9 @@ public class GameBoard
 			}
 
 			MoveTiles(place, rowX, originDirection);
+			row[place] = rowX;
+			row[x] = null;
+			place += 1;
 		}
 	}
 
@@ -325,8 +330,8 @@ public class GameBoard
 	private int[] ToPosition(int bitMapPosition)
 	{
 		return new int[]{
-				bitMapPosition / 4,
-				bitMapPosition % 4
+				bitMapPosition % 4,
+				bitMapPosition / 4
 		};
 	}
 
@@ -348,6 +353,13 @@ public class GameBoard
 	private int GetNextFreePosition(int startPosition)
 	{
 		for (int i = startPosition; i < GameConfig.TILES_NUMBER; i++)
+		{
+			if (IsPositionFree(i))
+			{
+				return i;
+			}
+		}
+		for (int i = 0; i < startPosition; ++i)
 		{
 			if (IsPositionFree(i))
 			{
