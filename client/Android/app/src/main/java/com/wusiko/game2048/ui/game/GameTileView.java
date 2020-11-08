@@ -1,8 +1,6 @@
 package com.wusiko.game2048.ui.game;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.widget.FrameLayout;
 
 import com.wusiko.game2048.R;
 import com.wusiko.game2048.data.game.GameTile;
