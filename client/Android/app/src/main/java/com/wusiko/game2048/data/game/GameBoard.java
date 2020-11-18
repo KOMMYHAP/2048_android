@@ -22,7 +22,7 @@ public class GameBoard
 	{
 		if (GameConfig.TILES_NUMBER > 32)
 		{
-			throw new RuntimeException("Invalid number of field size: the biggest size is 256!");
+			throw new RuntimeException("Invalid number of field size: the maximum number of tiles is 32!");
 		}
 
 		mGameField = new ArrayList<>(GameConfig.TILES_NUMBER);
