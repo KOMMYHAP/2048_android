@@ -34,7 +34,7 @@ public class GameTile
 	@Contract("_, _, _ -> new")
 	public static GameTile CreateWithDegree(int x, int y, int degree)
 	{
-		return new GameTile(x, y, 2 << degree);
+		return new GameTile(x, y, 1 << degree);
 	}
 
 	public GameTile Merged()
@@ -55,32 +55,12 @@ public class GameTile
 
 	public int getValue()
 	{
-		return 2 << mDegree;
+		return 1 << mDegree;
 	}
 
 	public int getDegree()
 	{
 		return mDegree;
-	}
-
-	public void moveUp()
-	{
-		mPosition[1] = Math.min(mPosition[1] + 1, GameConfig.TILES_IN_A_ROW - 1);
-	}
-
-	public void moveDown()
-	{
-		mPosition[1] = Math.max(mPosition[1] - 1, 0);
-	}
-
-	public void moveLeft()
-	{
-		mPosition[0] = Math.max(mPosition[0] - 1, 0);
-	}
-
-	public void moveRight()
-	{
-		mPosition[0] = Math.min(mPosition[0] + 1, GameConfig.TILES_IN_A_ROW - 1);
 	}
 
 	public int getX()
