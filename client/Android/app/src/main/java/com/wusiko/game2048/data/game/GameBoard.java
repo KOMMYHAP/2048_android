@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -14,7 +13,7 @@ public class GameBoard
 	private final Random mRandom = new Random();
 	private final GameTileFactory mGameTileFactory = new GameTileFactory(GameConfig.TILE_PROBABILITIES, mRandom);
 	private final ArrayList<GameTile> mGameField;
-	private final TileLinkContainer mTileLinks = new TileLinkContainer();
+	private final MovementState mMovementState;
 	private int mTilesBitMap;
 	private int mScores = 0;
 
@@ -26,18 +25,14 @@ public class GameBoard
 		}
 
 		mGameField = new ArrayList<>(GameConfig.TILES_NUMBER);
+		mMovementState = new MovementState();
 	}
 
 	public void StartGame()
 	{
 		for (int i = 0; i < GameConfig.TILE_SPAWN_AT_START; i++)
 		{
-			GameTile tile = TryToCreateTile();
-			if (tile != null)
-			{
-				int pos = ToBitMapPosition(tile.getX(), tile.getY());
-				mGameField.set(pos, tile);
-			}
+			TryToCreateTile();
 		}
 	}
 
@@ -48,12 +43,13 @@ public class GameBoard
 			mGameField.add(null);
 		}
 		mTilesBitMap = 0;
-		ClearUpdatedTiles();
+
+		mMovementState.Reset();
 	}
 
-	public TileLinkContainer GetUpdatedTileLinks()
+	public MovementState GetMovementState()
 	{
-		return mTileLinks;
+		return mMovementState;
 	}
 
 	public int GetScores()
@@ -68,35 +64,34 @@ public class GameBoard
 
 	public void MoveLeft()
 	{
-		ClearUpdatedTiles();
 		MoveTiles(Direction.Left);
 	}
 
 	public void MoveRight()
 	{
-		ClearUpdatedTiles();
 		MoveTiles(Direction.Right);
 	}
 
 	public void MoveUp()
 	{
-		ClearUpdatedTiles();
 		MoveTiles(Direction.Up);
 	}
 
 	public void MoveDown()
 	{
-		ClearUpdatedTiles();
 		MoveTiles(Direction.Down);
 	}
 
 	private void MoveTiles(Direction direction)
 	{
+		mMovementState.Reset();
+
 		ArrayList<ArrayList<GameTile>> rows = ApplyRotation(direction);
 		for (ArrayList<GameTile> row : rows)
 		{
 			MoveRowOnLeft(row.toArray(new GameTile[0]), direction);
 		}
+
 		MoveCompleted();
 	}
 
@@ -230,13 +225,15 @@ public class GameBoard
 
 	private void MergeTiles(@NotNull GameTile left, @NotNull GameTile right)
 	{
-		GameTile merged = left.Merged();
+		GameTile merged = left;
+		left = left.Clone();
+		merged.NextValue();
 		int posL = ToBitMapPosition(left.getX(), left.getY());
 		int posR = ToBitMapPosition(right.getX(), right.getY());
 		mGameField.set(posL, merged);
 		mGameField.set(posR, null);
 		mTilesBitMap &= ~(1 >> posR);
-		mTileLinks.Add(new MergedTileLink(left, right, merged));
+		mMovementState.GetTileLinks().Add(new MergedTileLink(left, right, merged));
 	}
 
 	private void MoveTiles(int place, @NotNull GameTile tile, @NotNull Direction originDirection)
@@ -245,7 +242,6 @@ public class GameBoard
 		switch (originDirection)
 		{
 			case Left:
-				// todo: placeY determined incorrect for the simplest case: position of tile is inverted (0;3) -> (3;0)
 				placeX = place;
 				placeY = tile.getY();
 				break;
@@ -267,31 +263,44 @@ public class GameBoard
 		mGameField.set(newPos, tile);
 		mGameField.set(oldPos, null);
 		mTilesBitMap &= ~(1 >> oldPos);
-		mTileLinks.Add(new MovedTileLink(tile, tile.getPosition().clone()));
+
+		int[] posFrom = tile.getPosition().clone();
 		tile.setX(placeX);
 		tile.setY(placeY);
+		mMovementState.GetTileLinks().Add(new MovedTileLink(tile, posFrom));
 	}
-
 
 	private void MoveCompleted()
 	{
+		mMovementState.CleanUpTileLinks();
+
+		boolean needCreateTile = mMovementState.GetTileLinks().GetMergedTiles().isEmpty();
+		boolean tileCreated = false;
+		if (needCreateTile)
+		{
+			if (TryToCreateTile() == null)
+			{
+				tileCreated = false;
+			}
+		}
+		if (!tileCreated)
+		{
+			// todo: check on lose
+		}
+
 		UpdateScores();
 	}
 
 	private void UpdateScores()
 	{
 		int scores = 0;
-		List<MergedTileLink> mergedTileLinks = mTileLinks.GetMergedTiles();
+		List<MergedTileLink> mergedTileLinks = mMovementState.GetTileLinks().GetMergedTiles();
 		for (MergedTileLink link : mergedTileLinks)
 		{
 			scores += link.GetScores();
 		}
+		mMovementState.SetScores(scores);
 		mScores += scores;
-	}
-
-	private void ClearUpdatedTiles()
-	{
-		mTileLinks.Clear();
 	}
 
 	@Nullable
@@ -306,7 +315,20 @@ public class GameBoard
 		int numberOfFreePositions = NumberOfFreePositions();
 		if (numberOfFreePositions != 1)
 		{
-			int indexOfFreePosition = mRandom.nextInt(numberOfFreePositions);
+			int indexOfFreePosition = 0;
+			if (numberOfFreePositions == 16)
+			{
+				indexOfFreePosition = 1;
+			}
+			else if (numberOfFreePositions == 15)
+			{
+				indexOfFreePosition = 2;
+			}
+			else
+			{
+				indexOfFreePosition = mRandom.nextInt(numberOfFreePositions);
+			}
+
 			for (int i = 0; i < indexOfFreePosition; i++)
 			{
 				freePosition = GetNextFreePosition(freePosition + 1);
@@ -316,7 +338,8 @@ public class GameBoard
 		mTilesBitMap |= (1 << freePosition);
 		int[] position = ToPosition(freePosition);
 		GameTile tile = mGameTileFactory.Create(position[0], position[1]);
-		mTileLinks.Add(new CreatedTileLink(tile));
+		mMovementState.GetTileLinks().Add(new CreatedTileLink(tile.Clone()));
+		mGameField.set(freePosition, tile);
 		return tile;
 	}
 
