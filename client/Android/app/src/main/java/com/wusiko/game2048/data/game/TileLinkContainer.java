@@ -34,17 +34,17 @@ public class TileLinkContainer
 
 	public List<CreatedTileLink> GetCreatedTiles()
 	{
-		return Collections.unmodifiableList(mCreated);
+		return mCreated;
 	}
 
 	public List<MergedTileLink> GetMergedTiles()
 	{
-		return Collections.unmodifiableList(mMerged);
+		return mMerged;
 	}
 
 	public List<MovedTileLink> GetMovedTiles()
 	{
-		return Collections.unmodifiableList(mMoved);
+		return mMoved;
 	}
 
 }

@@ -10,18 +10,16 @@ import com.wusiko.game2048.data.game.CreatedTileLink;
 import com.wusiko.game2048.data.game.GameBoard;
 import com.wusiko.game2048.data.game.MergedTileLink;
 import com.wusiko.game2048.data.game.MovedTileLink;
+import com.wusiko.game2048.data.game.MovementState;
 import com.wusiko.game2048.data.game.TileLinkContainer;
 
 import java.util.List;
 
 public class GameBoardViewModel extends ViewModel
 {
-	private final String TAG = "GameViewModel";
+	private final String TAG = "GameBoardViewModel";
 	private final GameBoard mGameBoard;
-	private final MutableLiveData<List<CreatedTileLink>> mCreatedTiles = new MutableLiveData<>();
-	private final MutableLiveData<List<MovedTileLink>> mMovedTiles = new MutableLiveData<>();
-	private final MutableLiveData<List<MergedTileLink>> mMergedTiles = new MutableLiveData<>();
-
+	private final MutableLiveData<MovementState> mMovementState = new MutableLiveData<>();
 	private final MutableLiveData<Integer> mScores = new MutableLiveData<>();
 	private final MutableLiveData<Integer> mHighScores = new MutableLiveData<>();
 
@@ -32,19 +30,9 @@ public class GameBoardViewModel extends ViewModel
 		mHighScores.setValue(0);
 	}
 
-	public LiveData<List<CreatedTileLink>> GetCreatedTiles()
+	public LiveData<MovementState> GetMovementState()
 	{
-		return mCreatedTiles;
-	}
-
-	public LiveData<List<MovedTileLink>> GetMovedTiles()
-	{
-		return mMovedTiles;
-	}
-
-	public LiveData<List<MergedTileLink>> GetMergedTiles()
-	{
-		return mMergedTiles;
+		return mMovementState;
 	}
 
 	public LiveData<Integer> GetScores()
@@ -59,47 +47,50 @@ public class GameBoardViewModel extends ViewModel
 
 	public void OnMoveUp()
 	{
-		Log.i(TAG, "moved up");
+		Log.i(TAG, "Movement: up");
 		mGameBoard.MoveUp();
 		OnMoved();
 	}
 
 	public void OnMoveDown()
 	{
-		Log.i(TAG, "moved down");
+		Log.i(TAG, "Movement: down");
 		mGameBoard.MoveDown();
 		OnMoved();
 	}
 
 	public void OnMoveLeft()
 	{
-		Log.i(TAG, "moved left");
+		Log.i(TAG, "Movement: left");
 		mGameBoard.MoveLeft();
 		OnMoved();
 	}
 
 	public void OnMoveRight()
 	{
-		Log.i(TAG, "moved right");
+		Log.i(TAG, "Movement: right");
 		mGameBoard.MoveRight();
 		OnMoved();
 	}
 
 	public void OnRestart()
 	{
-		Log.i(TAG, "game started");
+		Log.i(TAG, "State: game restarted");
 		mGameBoard.StopGame();
 		mGameBoard.StartGame();
-		mCreatedTiles.setValue(mGameBoard.GetUpdatedTileLinks().GetCreatedTiles());
+		mMovementState.setValue(mGameBoard.GetMovementState());
 	}
 
 	private void OnMoved()
 	{
-		TileLinkContainer links = mGameBoard.GetUpdatedTileLinks();
-		mCreatedTiles.setValue(links.GetCreatedTiles());
-		mMovedTiles.setValue(links.GetMovedTiles());
-		mMergedTiles.setValue(links.GetMergedTiles());
-		mScores.setValue(mGameBoard.GetScores());
+		mMovementState.setValue(mGameBoard.GetMovementState());
+
+		int scores = mGameBoard.GetScores();
+		mScores.setValue(scores);
+		if (scores > mHighScores.getValue())
+		{
+			mHighScores.setValue(scores);
+		}
 	}
 
 }
