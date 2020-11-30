@@ -118,8 +118,8 @@ public class GameBoardView extends View
 				}
 				catch (RuntimeException e)
 				{
-					Log.e(TAG, e.getMessage());
-					e.printStackTrace();
+					Log.e(TAG, e.getMessage() != null ? e.getMessage() : "no error");
+//					e.printStackTrace();
 				}
 			}
 		});
@@ -248,47 +248,46 @@ public class GameBoardView extends View
 
 	private void MergeTile(@NotNull MergedTileLink link)
 	{
-		final int[] pos1 = link.GetFirstTile().getPosition();
-		final int index1 = ToMappedIndex(pos1[0], pos1[1]);
-
-		GameTileView tileView = mTileViewsByIndex.remove(index1);
+		final int[] posOrigin = link.GetOrigin().getPosition();
+		final int indexOrigin = ToMappedIndex(posOrigin[0], posOrigin[1]);
+		GameTileView tileView = mTileViewsByIndex.remove(indexOrigin);
 		if (tileView == null)
 		{
-			throw new RuntimeException(String.format("Cannot merge tile: position (%d; %d) is empty!", pos1[0], pos1[1]));
+			throw new RuntimeException(String.format("Cannot merge tile: position 'origin' (%d; %d) is empty!", posOrigin[0], posOrigin[1]));
 		}
 
-		final int[] resultPos = link.GetResultTile().getPosition();
-		final int resultIndex = ToMappedIndex(resultPos[0], resultPos[1]);
-		if (mTileViewsByIndex.put(resultIndex, tileView) != null)
+		final int[] posFrom = link.GetFrom().getPosition();
+		final int indexFrom = ToMappedIndex(posFrom[0], posFrom[1]);
+		if (indexOrigin == indexFrom)
 		{
-			throw new RuntimeException(String.format("Cannot merge tile: position (%d; %d) is busy!", resultPos[0], resultPos[1]));
+			throw new RuntimeException(String.format("Cannot merge tile: index of tile 'from' at position (%d; %d) and 'origin' tile are equal!", posOrigin[0], posOrigin[1]));
 		}
 
-		final int[] pos2 = link.GetSecondTile().getPosition();
-		final int index2 = ToMappedIndex(pos2[0], pos2[1]);
-		if (index2 == index1)
+		GameTileView removedView = mTileViewsByIndex.remove(indexFrom);
+		if (removedView == null)
 		{
-			throw new RuntimeException(String.format("Cannot merge tile: index of source tile at position (%d; %d) and result tile are equal!", pos2[0], pos2[1]));
+			throw new RuntimeException(String.format("Cannot merge tile: position 'from' (%d; %d) is empty!", posFrom[0], posFrom[1]));
 		}
 
-		tileView.SetTile(link.GetResultTile());
+		final int[] posTo = link.GetTo().getPosition();
+		final int indexTo = ToMappedIndex(posTo[0], posTo[1]);
+		if (mTileViewsByIndex.put(indexTo, tileView) != null)
+		{
+			throw new RuntimeException(String.format("Cannot merge tile: position 'to' (%d; %d) is busy!", posTo[0], posTo[1]));
+		}
+
+		tileView.SetTile(link.GetTo());
 		UpdateGeometry(tileView);
-
-		if (!mTileViewsByIndex.containsKey(index2))
-		{
-			throw new RuntimeException(String.format("Cannot move tile: position (%d; %d) is empty!", pos2[0], pos2[1]));
-		}
-		GameTileView removedView = mTileViewsByIndex.remove(index2);
 		mBoardLayout.removeView(removedView);
 
-		int firstTileValue = link.GetFirstTile().getValue();
-		int secondTileValue = link.GetSecondTile().getValue();
-		int resultTileValue = link.GetResultTile().getValue();
+		int tileFromValue = link.GetFrom().getValue();
+		int tileOriginValue = link.GetOrigin().getValue();
+		int tileToValue = link.GetTo().getValue();
 
 		Log.i(TAG, String.format("Tiles merged: %d (%d; %d) + %d (%d; %d) = %d (%d; %d)",
-				firstTileValue, pos1[0], pos1[1],
-				secondTileValue, pos2[0], pos2[1],
-				resultTileValue, resultPos[0], resultPos[1]));
+				tileFromValue, posFrom[0], posFrom[1],
+				tileOriginValue, posOrigin[0], posOrigin[1],
+				tileToValue, posTo[0], posTo[1]));
 	}
 
 	private static int ToMappedIndex(int x, int y)

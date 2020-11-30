@@ -38,7 +38,7 @@ public class MovementState
 		{
 			for (MergedTileLink mergedTileLink : mergedTileLinks)
 			{
-				if (movedTileLink.GetTile() == mergedTileLink.GetResultTile())
+				if (movedTileLink.GetTile() == mergedTileLink.GetTo())
 				{
 					movedTileLinksToRemove.add(movedTileLink);
 					break;

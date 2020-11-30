@@ -231,8 +231,8 @@ public class GameBoard
 		int posR = ToBitMapPosition(from.getX(), from.getY());
 		mGameField.set(posL, to);
 		mGameField.set(posR, null);
-		mTilesBitMap &= ~(1 >> posR);
-		mTileLinks.Add(new MergedTileLink(origin, to, from));
+		mTilesBitMap &= ~(1 << posR);
+		mMovementState.GetTileLinks().Add(new MergedTileLink(origin, to, from));
 	}
 
 	private void MoveTiles(int place, @NotNull GameTile tile, @NotNull Direction originDirection)
@@ -261,7 +261,8 @@ public class GameBoard
 		int oldPos = ToBitMapPosition(tile.getX(), tile.getY());
 		mGameField.set(newPos, tile);
 		mGameField.set(oldPos, null);
-		mTilesBitMap &= ~(1 >> oldPos);
+		mTilesBitMap &= ~(1 << oldPos);
+		mTilesBitMap |= (1 << newPos);
 
 		int[] posFrom = tile.getPosition().clone();
 		tile.setX(placeX);
@@ -274,17 +275,10 @@ public class GameBoard
 		mMovementState.CleanUpTileLinks();
 
 		boolean needCreateTile = mMovementState.GetTileLinks().GetMergedTiles().isEmpty();
-		boolean tileCreated = false;
+		boolean tileCreated = true;
 		if (needCreateTile)
 		{
-			if (TryToCreateTile() == null)
-			{
-				tileCreated = false;
-			}
-		}
-		if (!tileCreated)
-		{
-			// todo: check on lose
+			TryToCreateTile();
 		}
 
 		UpdateScores();
@@ -314,20 +308,7 @@ public class GameBoard
 		int numberOfFreePositions = NumberOfFreePositions();
 		if (numberOfFreePositions != 1)
 		{
-			int indexOfFreePosition = 0;
-			if (numberOfFreePositions == 16)
-			{
-				indexOfFreePosition = 1;
-			}
-			else if (numberOfFreePositions == 15)
-			{
-				indexOfFreePosition = 2;
-			}
-			else
-			{
-				indexOfFreePosition = mRandom.nextInt(numberOfFreePositions);
-			}
-
+			int indexOfFreePosition = mRandom.nextInt(numberOfFreePositions);
 			for (int i = 0; i < indexOfFreePosition; i++)
 			{
 				freePosition = GetNextFreePosition(freePosition + 1);
@@ -337,7 +318,7 @@ public class GameBoard
 		mTilesBitMap |= (1 << freePosition);
 		int[] position = ToPosition(freePosition);
 		GameTile tile = mGameTileFactory.Create(position[0], position[1]);
-		mMovementState.GetTileLinks().Add(new CreatedTileLink(tile.Clone()));
+		mMovementState.GetTileLinks().Add(new CreatedTileLink(tile));
 		mGameField.set(freePosition, tile);
 		return tile;
 	}

@@ -87,7 +87,7 @@ public class GameBoardViewModel extends ViewModel
 
 		int scores = mGameBoard.GetScores();
 		mScores.setValue(scores);
-		if (scores > mHighScores.getValue())
+		if (mHighScores.getValue() != null && scores > mHighScores.getValue())
 		{
 			mHighScores.setValue(scores);
 		}
