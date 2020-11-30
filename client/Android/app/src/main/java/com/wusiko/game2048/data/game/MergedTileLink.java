@@ -2,34 +2,50 @@ package com.wusiko.game2048.data.game;
 
 public class MergedTileLink
 {
-	private final GameTile mTile1;
-	private final GameTile mTile2;
-	private final GameTile mTileResult;
+	// mTo = mOrigin + mFrom
+	// mOrigin	- copy of real Tile
+	// mTo		- result of tile where two tiles were merged
+	// mFrom	- tile which was destroyed to obtain merged tile
+	//
+	// In example, lets move first row to left:
+	// Row: 0   2   0   2
+	//         |       |
+	//     mOrigin     |
+	//              mFrom
+	//
+	// Result of moving:
+	//      4   0   0   0
+	//      |   |      |
+	//    mTo   |      |
+	//       mOrigin   |
+	//               mFrom
 
-	public MergedTileLink(GameTile lhs, GameTile rhs, GameTile result)
+	private final GameTile mTo, mOrigin, mFrom;
+
+	public MergedTileLink(GameTile origin, GameTile to, GameTile from)
 	{
-		mTile1 = lhs;
-		mTile2 = rhs;
-		mTileResult = result;
+		mTo = to;
+		mOrigin = origin;
+		mFrom = from;
 	}
 
-	public GameTile GetFirstTile()
+	public GameTile GetTo()
 	{
-		return mTile1;
+		return mTo;
 	}
 
-	public GameTile GetSecondTile()
+	public GameTile GetFrom()
 	{
-		return mTile2;
+		return mFrom;
 	}
 
-	public GameTile GetResultTile()
+	public GameTile GetOrigin()
 	{
-		return mTileResult;
+		return mOrigin;
 	}
 
 	public int GetScores()
 	{
-		return mTileResult.getValue() / 2;
+		return mTo.getValue() + mOrigin.getValue();
 	}
 }

@@ -223,17 +223,16 @@ public class GameBoard
 		}
 	}
 
-	private void MergeTiles(@NotNull GameTile left, @NotNull GameTile right)
+	private void MergeTiles(@NotNull GameTile to, @NotNull GameTile from)
 	{
-		GameTile merged = left;
-		left = left.Clone();
-		merged.NextValue();
-		int posL = ToBitMapPosition(left.getX(), left.getY());
-		int posR = ToBitMapPosition(right.getX(), right.getY());
-		mGameField.set(posL, merged);
+		GameTile origin = to.Copy();
+		to.Merged();
+		int posL = ToBitMapPosition(to.getX(), to.getY());
+		int posR = ToBitMapPosition(from.getX(), from.getY());
+		mGameField.set(posL, to);
 		mGameField.set(posR, null);
 		mTilesBitMap &= ~(1 >> posR);
-		mMovementState.GetTileLinks().Add(new MergedTileLink(left, right, merged));
+		mTileLinks.Add(new MergedTileLink(origin, to, from));
 	}
 
 	private void MoveTiles(int place, @NotNull GameTile tile, @NotNull Direction originDirection)
