@@ -13,6 +13,7 @@
             android:name=".ui.game.GameActivity"
             android:label="@string/title_activity_game"
             android:theme="@style/FullscreenTheme"
+            android:configChanges="keyboardHidden|screenSize"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
