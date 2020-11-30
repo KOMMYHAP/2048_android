@@ -37,9 +37,14 @@ public class GameTile
 		return new GameTile(x, y, 1 << degree);
 	}
 
-	public GameTile Merged()
+	public GameTile Copy()
 	{
-		return new GameTile(getX(), getY(), getValue() * 2);
+		return new GameTile(getX(), getY(), getValue());
+	}
+
+	public void Merged()
+	{
+		mDegree += 1;
 	}
 
 	private static int convertValueToDegree(int value)
