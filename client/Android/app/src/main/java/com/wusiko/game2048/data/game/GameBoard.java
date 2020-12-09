@@ -275,13 +275,28 @@ public class GameBoard
 		mMovementState.CleanUpTileLinks();
 
 		boolean needCreateTile = mMovementState.GetTileLinks().GetMergedTiles().isEmpty();
-		boolean tileCreated = true;
+		boolean tileCreated = false;
 		if (needCreateTile)
 		{
-			TryToCreateTile();
+			tileCreated = TryToCreateTile() != null;
+		}
+
+		boolean lose = false;
+		if (needCreateTile && !tileCreated)
+		{
+			lose = CheckOnLose();
+		}
+
+		if (lose)
+		{
+			mMovementState.SetLose();
 		}
 
 		UpdateScores();
+	}
+
+	private boolean CheckOnLose() {
+		return false;
 	}
 
 	private void UpdateScores()
