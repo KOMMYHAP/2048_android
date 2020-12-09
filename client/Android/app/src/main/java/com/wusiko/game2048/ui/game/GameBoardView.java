@@ -115,6 +115,7 @@ public class GameBoardView extends View
 					{
 						CreateTile(link);
 					}
+					PrintBoard();
 				}
 				catch (RuntimeException e)
 				{
@@ -194,6 +195,30 @@ public class GameBoardView extends View
 		{
 			UpdateGeometry(entry.getValue());
 		}
+	}
+
+	private void PrintBoard()
+	{
+		StringBuilder str = new StringBuilder();
+		for (int y = 0; y < 4; ++y)
+		{
+			for (int x = 0; x < 4; ++x)
+			{
+				int n = 0;
+				GameTileView tileView = mTileViewsByIndex.get(ToMappedIndex(x, y));
+				if (tileView != null)
+				{
+					n = tileView.GetTile().getValue();
+				}
+				str.append(String.format("%4d", n));
+				if (x != 3)
+				{
+					str.append(" | ");
+				}
+			}
+			str.append("\n-------------------------\n");
+		}
+		Log.d(TAG, "Board:\n" + str);
 	}
 
 	private void CreateTile(@NotNull CreatedTileLink link)
