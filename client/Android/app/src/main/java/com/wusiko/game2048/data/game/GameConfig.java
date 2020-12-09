@@ -19,6 +19,7 @@ public class GameConfig {
     public static final float TILE_PROBABILITIES_PRECISION = 0.0001f;
     public static final int TILE_SPAWN_AT_START = 0;
 
+    // bug: right movement cannot be performed!
     public static final int[] GAME_FIELD_PRESET = {
             0,    2,    0,    2,
             0,    0,    2,   16,
