@@ -6,14 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.wusiko.game2048.data.game.CreatedTileLink;
 import com.wusiko.game2048.data.game.GameBoard;
-import com.wusiko.game2048.data.game.MergedTileLink;
-import com.wusiko.game2048.data.game.MovedTileLink;
 import com.wusiko.game2048.data.game.MovementState;
-import com.wusiko.game2048.data.game.TileLinkContainer;
-
-import java.util.List;
 
 public class GameBoardViewModel extends ViewModel
 {
@@ -83,13 +77,20 @@ public class GameBoardViewModel extends ViewModel
 
 	private void OnMoved()
 	{
-		mMovementState.setValue(mGameBoard.GetMovementState());
+		MovementState state = mGameBoard.GetMovementState();
+		mMovementState.setValue(state);
 
-		int scores = mGameBoard.GetScores();
-		mScores.setValue(scores);
-		if (mHighScores.getValue() != null && scores > mHighScores.getValue())
+		int oldScores = 0;
+		if (mScores.getValue() != null)
 		{
-			mHighScores.setValue(scores);
+			oldScores = mScores.getValue();
+		}
+		int updatedScores = oldScores + state.GetScores();
+		mScores.setValue(updatedScores);
+
+		if (mHighScores.getValue() != null && updatedScores > mHighScores.getValue())
+		{
+			mHighScores.setValue(updatedScores);
 		}
 	}
 

@@ -1,389 +1,348 @@
 package com.wusiko.game2048.data.game;
 
+import androidx.core.util.Pair;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-public class GameBoard
-{
-	private final Random mRandom = new Random();
-	private final GameTileFactory mGameTileFactory = new GameTileFactory(GameConfig.TILE_PROBABILITIES, mRandom);
-	private final ArrayList<GameTile> mGameField;
-	private final MovementState mMovementState;
-	private int mTilesBitMap;
-	private int mScores = 0;
+public class GameBoard {
+    private final Random mRandom = new Random();
+    private final GameTileFactory mGameTileFactory = new GameTileFactory(GameConfig.TILE_PROBABILITIES, mRandom);
+    private final ArrayList<GameTile> mGameField;
+    private final MovementState mMovementState;
+    private int mTilesBitMap;
+    private boolean mGameWasOver = false;
 
-	public GameBoard()
-	{
-		if (GameConfig.TILES_NUMBER > 32)
-		{
-			throw new RuntimeException("Invalid number of field size: the maximum number of tiles is 32!");
-		}
+    public GameBoard() {
+        if (GameConfig.TILES_NUMBER > 32) {
+            throw new RuntimeException("Invalid number of field size: the maximum number of tiles is 32!");
+        }
 
-		mGameField = new ArrayList<>(GameConfig.TILES_NUMBER);
-		mMovementState = new MovementState();
-	}
+        mGameField = new ArrayList<>(GameConfig.TILES_NUMBER);
+        mMovementState = new MovementState();
+    }
 
-	public void StartGame()
-	{
-		for (int i = 0; i < GameConfig.TILE_SPAWN_AT_START; i++)
-		{
-			TryToCreateTile();
-		}
-	}
+    public void StartGame() {
+        for (int i = 0; i < GameConfig.GAME_FIELD_PRESET.length; ++i)
+        {
+            int value = GameConfig.GAME_FIELD_PRESET[i];
+            if (value != 0)
+            {
+                int[] pos = ToPosition(i);
+                CreateTile(pos[0], pos[1], value);
+            }
+        }
+        for (int i = 0; i < GameConfig.TILE_SPAWN_AT_START; i++) {
+            TryToCreateTile(null);
+        }
+    }
 
-	public void StopGame()
-	{
-		for (int i = 0; i < GameConfig.TILES_NUMBER; ++i)
-		{
-			mGameField.add(null);
-		}
-		mTilesBitMap = 0;
+    public void StopGame() {
+        for (int i = 0; i < GameConfig.TILES_NUMBER; ++i) {
+            mGameField.add(null);
+        }
+        mTilesBitMap = 0;
+        mGameWasOver = false;
+        mMovementState.Reset();
+    }
 
-		mMovementState.Reset();
-	}
+    public MovementState GetMovementState() {
+        return mMovementState;
+    }
 
-	public MovementState GetMovementState()
-	{
-		return mMovementState;
-	}
+    public void MoveLeft() {
+        TryMoveTiles(Direction.Left);
+    }
 
-	public int GetScores()
-	{
-		return mScores;
-	}
+    public void MoveRight() {
+        TryMoveTiles(Direction.Right);
+    }
 
-	private enum Direction
-	{
-		Left, Right, Up, Down
-	}
+    public void MoveUp() {
+        TryMoveTiles(Direction.Up);
+    }
 
-	public void MoveLeft()
-	{
-		MoveTiles(Direction.Left);
-	}
+    public void MoveDown() {
+        TryMoveTiles(Direction.Down);
+    }
 
-	public void MoveRight()
-	{
-		MoveTiles(Direction.Right);
-	}
+    private void TryMoveTiles(Direction direction) {
+        if (mGameWasOver) {
+            return;
+        }
 
-	public void MoveUp()
-	{
-		MoveTiles(Direction.Up);
-	}
+        mMovementState.Reset();
+        MoveResult moveResult = MoveTiles(direction);
+        final boolean boardChanged = ApplyMoveResult(moveResult, direction);
+        mMovementState.SetScores(moveResult.getScores());
 
-	public void MoveDown()
-	{
-		MoveTiles(Direction.Down);
-	}
+        if (boardChanged) {
+            GameTile tileCreated = TryToCreateTile(null);
 
-	private void MoveTiles(Direction direction)
-	{
-		mMovementState.Reset();
+            if (tileCreated == null) {
+                throw new RuntimeException("Invalid code flow: board has been changed, but tile cannot be created!");
+            }
+            if (!HasAnyMove()) {
+                mGameWasOver = true;
+                mMovementState.SetLose();
+            }
+        }
+    }
 
-		ArrayList<ArrayList<GameTile>> rows = ApplyRotation(direction);
-		for (ArrayList<GameTile> row : rows)
-		{
-			MoveRowOnLeft(row.toArray(new GameTile[0]), direction);
-		}
+    private boolean HasAnyMove() {
+        for (Direction dir : Direction.values()) {
+            if (MoveTiles(dir).HasAnyChanges()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-		MoveCompleted();
-	}
+    private MoveResult MoveTiles(Direction direction) {
+        MoveResult moveResult = new MoveResult();
+        ArrayList<ArrayList<GameTile>> rows = ApplyRotation(direction);
+        for (ArrayList<GameTile> row : rows) {
+            MoveResult result = MoveRowOnLeft(row.toArray(new GameTile[0]));
+            moveResult.Add(result);
+        }
+        return moveResult;
+    }
 
-	@NotNull
-	private ArrayList<ArrayList<GameTile>> ApplyRotation(@NotNull Direction direction)
-	{
-		final ArrayList<ArrayList<GameTile>> board = new ArrayList<>(GameConfig.TILES_NUMBER);
-		final int maxW = GameConfig.TILES_IN_A_ROW;
-		final int maxH = maxW;
-		switch (direction)
-		{
-			case Left:
-				for (int h = 0; h < maxH; ++h)
-				{
-					final ArrayList<GameTile> row = new ArrayList<>(GameConfig.TILES_IN_A_ROW);
-					for (int w = 0; w < maxW; ++w)
-					{
-						int originPlace = ToBitMapPosition(w, h);
-						row.add(mGameField.get(originPlace));
-					}
-					board.add(row);
-				}
-				break;
-			case Right:
-				for (int h = 0; h < maxH; ++h)
-				{
-					final ArrayList<GameTile> row = new ArrayList<>(GameConfig.TILES_IN_A_ROW);
-					for (int w = 4; w > 0; --w)
-					{
-						int originPlace = ToBitMapPosition(w - 1, h);
-						row.add(mGameField.get(originPlace));
-					}
-					board.add(row);
-				}
-				break;
-			case Up:
-				for (int w = 0; w < maxW; ++w)
-				{
-					final ArrayList<GameTile> row = new ArrayList<>(GameConfig.TILES_IN_A_ROW);
-					for (int h = 0; h < 4; ++h)
-					{
-						int originPlace = ToBitMapPosition(w, h);
-						row.add(mGameField.get(originPlace));
-					}
-					board.add(row);
-				}
-				break;
-			case Down:
-				for (int w = 0; w < maxW; ++w)
-				{
-					final ArrayList<GameTile> row = new ArrayList<>(GameConfig.TILES_IN_A_ROW);
-					for (int h = 4; h > 0; --h)
-					{
-						int originPlace = ToBitMapPosition(w, h - 1);
-						row.add(mGameField.get(originPlace));
-					}
-					board.add(row);
-				}
-				break;
-		}
-		return board;
-	}
+    private GameTile CopyTile(int mappedPos) {
+        GameTile tile = mGameField.get(mappedPos);
+        return tile != null ? tile.clone() : null;
+    }
 
-	private void MoveRowOnLeft(@NotNull GameTile[] row, Direction originDirection)
-	{
-		int l = 0, r = 0;
-		while (l < (row.length - 1) && r < row.length)
-		{
-			// finds first not null tile
-			final GameTile tileL = row[l];
-			if (tileL == null)
-			{
-				++l;
-				continue;
-			}
+    @NotNull
+    private ArrayList<ArrayList<GameTile>> ApplyRotation(@NotNull Direction direction) {
+        final ArrayList<ArrayList<GameTile>> board = new ArrayList<>(GameConfig.TILES_NUMBER);
+        final int maxW = GameConfig.TILES_IN_A_ROW;
+        final int maxH = maxW;
+        switch (direction) {
+            case Left:
+                for (int h = 0; h < maxH; ++h) {
+                    final ArrayList<GameTile> row = new ArrayList<>(GameConfig.TILES_IN_A_ROW);
+                    for (int w = 0; w < maxW; ++w) {
+                        int originPlace = ToBitMapPosition(w, h);
+                        row.add(CopyTile(originPlace));
+                    }
+                    board.add(row);
+                }
+                break;
+            case Right:
+                for (int h = 0; h < maxH; ++h) {
+                    final ArrayList<GameTile> row = new ArrayList<>(GameConfig.TILES_IN_A_ROW);
+                    for (int w = 4; w > 0; --w) {
+                        int originPlace = ToBitMapPosition(w - 1, h);
+                        row.add(CopyTile(originPlace));
+                    }
+                    board.add(row);
+                }
+                break;
+            case Up:
+                for (int w = 0; w < maxW; ++w) {
+                    final ArrayList<GameTile> row = new ArrayList<>(GameConfig.TILES_IN_A_ROW);
+                    for (int h = 0; h < 4; ++h) {
+                        int originPlace = ToBitMapPosition(w, h);
+                        row.add(CopyTile(originPlace));
+                    }
+                    board.add(row);
+                }
+                break;
+            case Down:
+                for (int w = 0; w < maxW; ++w) {
+                    final ArrayList<GameTile> row = new ArrayList<>(GameConfig.TILES_IN_A_ROW);
+                    for (int h = 4; h > 0; --h) {
+                        int originPlace = ToBitMapPosition(w, h - 1);
+                        row.add(CopyTile(originPlace));
+                    }
+                    board.add(row);
+                }
+                break;
+        }
+        return board;
+    }
 
-			// finds second not null tile located to the right
-			if (r <= l)
-			{
-				r = l + 1;
-			}
-			final GameTile tileR = row[r];
-			if (tileR == null)
-			{
-				++r;
-				continue;
-			}
+    private MoveResult MoveRowOnLeft(@NotNull GameTile[] row) {
+        MoveResult moveResult = new MoveResult();
+		/*	place - индекс для вставки плитки,
+		x     - индекс рассматриваемой плитки */
+        int place = 0, x = 1;
+        for (; x < row.length; ++x) {
+            if (row[x] == null)
+                continue;
 
-			if (tileL.getValue() != tileR.getValue())
-			{
-				// if values of left and right tiles are different, tries to find a next one
-				l = r;
-			}
-			else
-			{
-				// in other case merges right tile to the left
-				MergeTiles(tileL, tileR);
-				row[r] = null;
-				l = r + 1;
-			}
-		}
+            final GameTile rowP = row[place];
+            final GameTile rowX = row[x];
 
-		int place = 0, x = 0;
-		while (place < (row.length - 1) && x < row.length)
-		{
-			// finds first empty place
-			if (row[place] != null)
-			{
-				place += 1;
-				continue;
-			}
+            final int valueP = rowP != null ? rowP.getValue() : 0;
+            final int valueX = rowX.getValue();
+            if (valueP == valueX && rowP != null) {
+                moveResult.Merged(rowP.clone(), rowX.clone());
+                rowP.Merged();
+                row[x] = null;
+                place++;
+            } else {
+                if (place + 1 == x && rowP != null) {
+                    place += 1;
+                    continue;
+                }
+                if (rowP != null) {
+                    place++;
+                }
 
-			// finds first not null tile
-			if (x <= place)
-			{
-				x = place + 1;
-			}
-			final GameTile rowX = row[x];
-			if (rowX == null)
-			{
-				x += 1;
-				continue;
-			}
+                moveResult.Moved(place, rowX.clone());
+                row[place] = rowX;
+                row[x] = null;
+            }
+        }
 
-			MoveTiles(place, rowX, originDirection);
-			row[place] = rowX;
-			row[x] = null;
-			place += 1;
-		}
-	}
+        return moveResult;
+    }
 
-	private void MergeTiles(@NotNull GameTile to, @NotNull GameTile from)
-	{
-		GameTile origin = to.Copy();
-		to.Merged();
-		int posL = ToBitMapPosition(to.getX(), to.getY());
-		int posR = ToBitMapPosition(from.getX(), from.getY());
-		mGameField.set(posL, to);
-		mGameField.set(posR, null);
-		mTilesBitMap &= ~(1 << posR);
-		mMovementState.GetTileLinks().Add(new MergedTileLink(origin, to, from));
-	}
+    private boolean ApplyMoveResult(MoveResult moveResult, Direction originDirection) {
+        for (Object change : moveResult.getChanges()) {
+            if (change instanceof MoveResult.MoveType) {
+                MoveResult.MoveType move = ((MoveResult.MoveType) change);
+                MoveTiles(move.place, move.tile, originDirection);
+            } else if (change instanceof MoveResult.MergeType) {
+                MoveResult.MergeType merge = ((MoveResult.MergeType) change);
+                MergeTiles(merge.to, merge.tile);
+            }
+        }
+        return moveResult.HasAnyChanges();
+    }
 
-	private void MoveTiles(int place, @NotNull GameTile tile, @NotNull Direction originDirection)
-	{
-		int placeX = 0, placeY = 0;
-		switch (originDirection)
-		{
-			case Left:
-				placeX = place;
-				placeY = tile.getY();
-				break;
-			case Right:
-				placeX = GameConfig.TILES_IN_A_ROW - place - 1;
-				placeY = tile.getY();
-				break;
-			case Up:
-				placeX = tile.getX();
-				placeY = place;
-				break;
-			case Down:
-				placeX = tile.getX();
-				placeY = GameConfig.TILES_IN_A_ROW - place - 1;
-				break;
-		}
-		int newPos = ToBitMapPosition(placeX, placeY);
-		int oldPos = ToBitMapPosition(tile.getX(), tile.getY());
-		mGameField.set(newPos, tile);
-		mGameField.set(oldPos, null);
-		mTilesBitMap &= ~(1 << oldPos);
-		mTilesBitMap |= (1 << newPos);
+    private void MergeTiles(@NotNull GameTile to, @NotNull GameTile from) {
+        GameTile origin = to.clone();
+        to.Merged();
+        int posL = ToBitMapPosition(to.getX(), to.getY());
+        int posR = ToBitMapPosition(from.getX(), from.getY());
+        mGameField.set(posL, to);
+        mGameField.set(posR, null);
+        mTilesBitMap &= ~(1 << posR);
+        mMovementState.GetTileLinks().Add(new MergedTileLink(origin, to.clone(), from.clone()));
+    }
 
-		int[] posFrom = tile.getPosition().clone();
-		tile.setX(placeX);
-		tile.setY(placeY);
-		mMovementState.GetTileLinks().Add(new MovedTileLink(tile, posFrom));
-	}
+    private void MoveTiles(int place, @NotNull GameTile tile, @NotNull Direction originDirection) {
+        int placeX = 0, placeY = 0;
+        switch (originDirection) {
+            case Left:
+                placeX = place;
+                placeY = tile.getY();
+                break;
+            case Right:
+                placeX = GameConfig.TILES_IN_A_ROW - place - 1;
+                placeY = tile.getY();
+                break;
+            case Up:
+                placeX = tile.getX();
+                placeY = place;
+                break;
+            case Down:
+                placeX = tile.getX();
+                placeY = GameConfig.TILES_IN_A_ROW - place - 1;
+                break;
+        }
+        int newPos = ToBitMapPosition(placeX, placeY);
+        int oldPos = ToBitMapPosition(tile.getX(), tile.getY());
+        mGameField.set(newPos, tile);
+        mGameField.set(oldPos, null);
+        mTilesBitMap &= ~(1 << oldPos);
+        mTilesBitMap |= (1 << newPos);
 
-	private void MoveCompleted()
-	{
-		mMovementState.CleanUpTileLinks();
+        int[] posFrom = tile.getPosition().clone();
+        tile.setX(placeX);
+        tile.setY(placeY);
+        mMovementState.GetTileLinks().Add(new MovedTileLink(tile.clone(), posFrom));
+    }
 
-		boolean needCreateTile = mMovementState.GetTileLinks().GetMergedTiles().isEmpty();
-		boolean tileCreated = false;
-		if (needCreateTile)
-		{
-			tileCreated = TryToCreateTile() != null;
-		}
+    @Nullable
+    private GameTile TryToCreateTile(Integer value) {
+        int freePosition = GetNextFreePosition(0);
+        if (freePosition == -1) {
+            return null;
+        }
 
-		boolean lose = false;
-		if (needCreateTile && !tileCreated)
-		{
-			lose = CheckOnLose();
-		}
+        int numberOfFreePositions = NumberOfFreePositions();
+        if (numberOfFreePositions != 1) {
+            int indexOfFreePosition = mRandom.nextInt(numberOfFreePositions);
+            for (int i = 0; i < indexOfFreePosition; i++) {
+                freePosition = GetNextFreePosition(freePosition + 1);
+            }
+        }
 
-		if (lose)
-		{
-			mMovementState.SetLose();
-		}
+        int[] position = ToPosition(freePosition);
+        return CreateTile(position[0], position[1], value);
+    }
 
-		UpdateScores();
-	}
+    private GameTile CreateTile(int x, int y, Integer value)
+    {
+        GameTile tile;
+        if (value != null)
+        {
+            tile = new GameTile(x, y, value);
+        }
+        else
+        {
+            tile = mGameTileFactory.Create(x, y);
+        }
+        PlaceTile(tile);
+        return tile;
+    }
 
-	private boolean CheckOnLose() {
-		return false;
-	}
+    private void PlaceTile(GameTile tile)
+    {
+        int mappedPos = ToBitMapPosition(tile.getX(), tile.getY());
+        mTilesBitMap |= (1 << mappedPos);
+        mGameField.set(mappedPos, tile);
+        mMovementState.GetTileLinks().Add(new CreatedTileLink(tile.clone()));
+    }
 
-	private void UpdateScores()
-	{
-		int scores = 0;
-		List<MergedTileLink> mergedTileLinks = mMovementState.GetTileLinks().GetMergedTiles();
-		for (MergedTileLink link : mergedTileLinks)
-		{
-			scores += link.GetScores();
-		}
-		mMovementState.SetScores(scores);
-		mScores += scores;
-	}
+    private int ToBitMapPosition(int x, int y) {
+        return y * GameConfig.TILES_IN_A_ROW + x;
+    }
 
-	@Nullable
-	private GameTile TryToCreateTile()
-	{
-		int freePosition = GetNextFreePosition(0);
-		if (freePosition == -1)
-		{
-			return null;
-		}
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    private int[] ToPosition(int bitMapPosition) {
+        return new int[]{
+                bitMapPosition % 4,
+                bitMapPosition / 4
+        };
+    }
 
-		int numberOfFreePositions = NumberOfFreePositions();
-		if (numberOfFreePositions != 1)
-		{
-			int indexOfFreePosition = mRandom.nextInt(numberOfFreePositions);
-			for (int i = 0; i < indexOfFreePosition; i++)
-			{
-				freePosition = GetNextFreePosition(freePosition + 1);
-			}
-		}
+    private boolean IsPositionFree(int position) {
+        return ((~mTilesBitMap >> position) & 1) == 1;
+    }
 
-		mTilesBitMap |= (1 << freePosition);
-		int[] position = ToPosition(freePosition);
-		GameTile tile = mGameTileFactory.Create(position[0], position[1]);
-		mMovementState.GetTileLinks().Add(new CreatedTileLink(tile));
-		mGameField.set(freePosition, tile);
-		return tile;
-	}
+    private int NumberOfFreePositions() {
+        int n = 0;
+        for (int i = 0; i < GameConfig.TILES_NUMBER; i++) {
+            n += IsPositionFree(i) ? 1 : 0;
+        }
+        return n;
+    }
 
-	private int ToBitMapPosition(int x, int y)
-	{
-		return y * GameConfig.TILES_IN_A_ROW + x;
-	}
+    private int GetNextFreePosition(int startPosition) {
+        for (int i = startPosition; i < GameConfig.TILES_NUMBER; i++) {
+            if (IsPositionFree(i)) {
+                return i;
+            }
+        }
+        for (int i = 0; i < startPosition; ++i) {
+            if (IsPositionFree(i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
-	@NotNull
-	@Contract(value = "_ -> new", pure = true)
-	private int[] ToPosition(int bitMapPosition)
-	{
-		return new int[]{
-				bitMapPosition % 4,
-				bitMapPosition / 4
-		};
-	}
-
-	private boolean IsPositionFree(int position)
-	{
-		return ((~mTilesBitMap >> position) & 1) == 1;
-	}
-
-	private int NumberOfFreePositions()
-	{
-		int n = 0;
-		for (int i = 0; i < GameConfig.TILES_NUMBER; i++)
-		{
-			n += IsPositionFree(i) ? 1 : 0;
-		}
-		return n;
-	}
-
-	private int GetNextFreePosition(int startPosition)
-	{
-		for (int i = startPosition; i < GameConfig.TILES_NUMBER; i++)
-		{
-			if (IsPositionFree(i))
-			{
-				return i;
-			}
-		}
-		for (int i = 0; i < startPosition; ++i)
-		{
-			if (IsPositionFree(i))
-			{
-				return i;
-			}
-		}
-		return -1;
-	}
+    private enum Direction {
+        Left, Right, Up, Down
+    }
 }

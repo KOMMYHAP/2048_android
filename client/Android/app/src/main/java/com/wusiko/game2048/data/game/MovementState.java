@@ -40,23 +40,4 @@ public class MovementState
 	{
 		mLose = true;
 	}
-
-	public void CleanUpTileLinks()
-	{
-		List<MergedTileLink> mergedTileLinks = mTileLinks.GetMergedTiles();
-		List<MovedTileLink> movedTileLinks = mTileLinks.GetMovedTiles();
-		List<MovedTileLink> movedTileLinksToRemove = new ArrayList<>();
-		for (MovedTileLink movedTileLink : movedTileLinks)
-		{
-			for (MergedTileLink mergedTileLink : mergedTileLinks)
-			{
-				if (movedTileLink.GetTile() == mergedTileLink.GetTo())
-				{
-					movedTileLinksToRemove.add(movedTileLink);
-					break;
-				}
-			}
-		}
-		movedTileLinks.removeAll(movedTileLinksToRemove);
-	}
 }
