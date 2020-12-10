@@ -5,10 +5,15 @@ import java.util.List;
 
 class MoveResult {
     private int scores = 0;
+    private int maxValue = 0;
     private List<Object> changes = new ArrayList<>();
 
     public int getScores() {
         return scores;
+    }
+
+    public int getMaxValue() {
+        return maxValue;
     }
 
     public List<Object> getChanges() {
@@ -17,11 +22,14 @@ class MoveResult {
 
     public void Moved(int place, GameTile tile) {
         getChanges().add(new MoveType(place, tile));
+        maxValue = Math.max(maxValue, tile.getValue());
     }
 
     public void Merged(GameTile to, GameTile tile) {
         getChanges().add(new MergeType(to, tile));
-        scores = getScores() + to.getValue() * 2;
+        final int mergedValue = to.getValue() * 2;
+        scores = getScores() + mergedValue;
+        maxValue = Math.max(maxValue, mergedValue);
     }
 
     public boolean HasAnyChanges() {
@@ -31,6 +39,7 @@ class MoveResult {
     public void Add(MoveResult other) {
         getChanges().addAll(other.getChanges());
         scores = getScores() + other.getScores();
+        maxValue = Math.max(maxValue, other.maxValue);
     }
 
     public static class MoveType {

@@ -71,11 +71,12 @@ public class GameBoard {
     }
 
     private void TryMoveTiles(Direction direction) {
+        mMovementState.Reset();
+
         if (mGameWasOver) {
             return;
         }
 
-        mMovementState.Reset();
         MoveResult moveResult = MoveTiles(direction);
         final boolean boardChanged = ApplyMoveResult(moveResult, direction);
         mMovementState.SetScores(moveResult.getScores());
@@ -86,7 +87,12 @@ public class GameBoard {
             if (tileCreated == null) {
                 throw new RuntimeException("Invalid code flow: board has been changed, but tile cannot be created!");
             }
-            if (!HasAnyMove()) {
+            if (moveResult.getMaxValue() == GameConfig.GAME_TILE_MAX_VALUE)
+            {
+                mGameWasOver = true;
+                mMovementState.SetVictory();
+            }
+            else if (!HasAnyMove()) {
                 mGameWasOver = true;
                 mMovementState.SetLose();
             }
@@ -106,7 +112,7 @@ public class GameBoard {
         MoveResult moveResult = new MoveResult();
         ArrayList<ArrayList<GameTile>> rows = ApplyRotation(direction);
         for (ArrayList<GameTile> row : rows) {
-            MoveResult result = MoveRowOnLeft(row.toArray(new GameTile[0]));
+            MoveResult result = MoveRowOnLeft(row.toArray(new GameTile[0]), direction);
             moveResult.Add(result);
         }
         return moveResult;
@@ -167,7 +173,7 @@ public class GameBoard {
         return board;
     }
 
-    private MoveResult MoveRowOnLeft(@NotNull GameTile[] row) {
+    private MoveResult MoveRowOnLeft(@NotNull GameTile[] row, Direction originDirection) {
         MoveResult moveResult = new MoveResult();
 		/*	place - индекс для вставки плитки,
 		x     - индекс рассматриваемой плитки */
@@ -197,6 +203,9 @@ public class GameBoard {
 
                 moveResult.Moved(place, rowX.clone());
                 row[place] = rowX;
+                int[] adaptedPos = AdaptPosition(place, rowX.getPosition(), originDirection);
+                rowX.setX(adaptedPos[0]);
+                rowX.setY(adaptedPos[1]);
                 row[x] = null;
             }
         }
@@ -218,47 +227,52 @@ public class GameBoard {
     }
 
     private void MergeTiles(@NotNull GameTile to, @NotNull GameTile from) {
-        GameTile origin = to.clone();
         to.Merged();
         int posL = ToBitMapPosition(to.getX(), to.getY());
         int posR = ToBitMapPosition(from.getX(), from.getY());
         mGameField.set(posL, to);
         mGameField.set(posR, null);
         mTilesBitMap &= ~(1 << posR);
-        mMovementState.GetTileLinks().Add(new MergedTileLink(origin, to.clone(), from.clone()));
+        mMovementState.GetTileLinks().Add(new MergedTileLink(to.clone(), from.clone()));
     }
 
     private void MoveTiles(int place, @NotNull GameTile tile, @NotNull Direction originDirection) {
-        int placeX = 0, placeY = 0;
-        switch (originDirection) {
-            case Left:
-                placeX = place;
-                placeY = tile.getY();
-                break;
-            case Right:
-                placeX = GameConfig.TILES_IN_A_ROW - place - 1;
-                placeY = tile.getY();
-                break;
-            case Up:
-                placeX = tile.getX();
-                placeY = place;
-                break;
-            case Down:
-                placeX = tile.getX();
-                placeY = GameConfig.TILES_IN_A_ROW - place - 1;
-                break;
-        }
-        int newPos = ToBitMapPosition(placeX, placeY);
+
+        int[] adaptedPos = AdaptPosition(place, tile.getPosition(), originDirection);
+        int newPos = ToBitMapPosition(adaptedPos[0], adaptedPos[1]);
         int oldPos = ToBitMapPosition(tile.getX(), tile.getY());
         mGameField.set(newPos, tile);
         mGameField.set(oldPos, null);
         mTilesBitMap &= ~(1 << oldPos);
         mTilesBitMap |= (1 << newPos);
-
         int[] posFrom = tile.getPosition().clone();
-        tile.setX(placeX);
-        tile.setY(placeY);
+        tile.setX(adaptedPos[0]);
+        tile.setY(adaptedPos[1]);
         mMovementState.GetTileLinks().Add(new MovedTileLink(tile.clone(), posFrom));
+    }
+
+    private static int[] AdaptPosition(int place, int[] pos, Direction originDirection)
+    {
+        int placeX = 0, placeY = 0;
+        switch (originDirection) {
+            case Left:
+                placeX = place;
+                placeY = pos[1];
+                break;
+            case Right:
+                placeX = GameConfig.TILES_IN_A_ROW - place - 1;
+                placeY = pos[1];
+                break;
+            case Up:
+                placeX = pos[0];
+                placeY = place;
+                break;
+            case Down:
+                placeX = pos[0];
+                placeY = GameConfig.TILES_IN_A_ROW - place - 1;
+                break;
+        }
+        return new int[] { placeX, placeY };
     }
 
     @Nullable

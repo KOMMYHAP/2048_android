@@ -21,7 +21,7 @@ public class GameTileFactory
 		}
 
 		if (Float.isNaN(sumProb) || Float.isInfinite(sumProb) ||
-				Math.abs(sumProb - 1.0f) < GameConfig.TILE_PROBABILITIES_PRECISION)
+				Math.abs(sumProb - 1.0f) >= GameConfig.TILE_PROBABILITIES_PRECISION)
 		{
 			throw new RuntimeException("Invalid probabilities of tile creation: sum of probability is not one!");
 		}
@@ -37,7 +37,7 @@ public class GameTileFactory
 		int degree = 1;
 		for (float p : mProbabilities)
 		{
-			if (Float.compare(p, 0.0f) != 0 && randomProb < currentProb + p)
+			if (p != 0 && randomProb < currentProb + p)
 			{
 				break;
 			}

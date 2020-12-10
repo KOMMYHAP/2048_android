@@ -6,45 +6,56 @@ import java.util.List;
 
 public class TileLinkContainer
 {
-	private final ArrayList<CreatedTileLink> mCreated = new ArrayList<CreatedTileLink>();
-	private final ArrayList<MergedTileLink> mMerged = new ArrayList<MergedTileLink>();
-	private final ArrayList<MovedTileLink> mMoved = new ArrayList<MovedTileLink>();
+	private final ArrayList<Object> mChanges = new ArrayList<>();
+//	private final ArrayList<CreatedTileLink> mCreated = new ArrayList<CreatedTileLink>();
+//	private final ArrayList<MergedTileLink> mMerged = new ArrayList<MergedTileLink>();
+//	private final ArrayList<MovedTileLink> mMoved = new ArrayList<MovedTileLink>();
 
 	public void Clear()
 	{
-		mCreated.clear();
-		mMerged.clear();
-		mMoved.clear();
+		mChanges.clear();
+//		mCreated.clear();
+//		mMerged.clear();
+//		mMoved.clear();
 	}
 
-	public void Add(CreatedTileLink link)
+//	public void Add(CreatedTileLink link)
+//	{
+//		mCreated.add(link);
+//	}
+//
+//	public void Add(MergedTileLink link)
+//	{
+//		mMerged.add(link);
+//	}
+//
+//	public void Add(MovedTileLink link)
+//	{
+//		mMoved.add(link);
+//	}
+	public void Add(Object link)
 	{
-		mCreated.add(link);
+		mChanges.add(link);
 	}
 
-	public void Add(MergedTileLink link)
+	public List<Object> GetChanges()
 	{
-		mMerged.add(link);
+		return mChanges;
 	}
 
-	public void Add(MovedTileLink link)
-	{
-		mMoved.add(link);
-	}
-
-	public List<CreatedTileLink> GetCreatedTiles()
-	{
-		return mCreated;
-	}
-
-	public List<MergedTileLink> GetMergedTiles()
-	{
-		return mMerged;
-	}
-
-	public List<MovedTileLink> GetMovedTiles()
-	{
-		return mMoved;
-	}
+//	public List<CreatedTileLink> GetCreatedTiles()
+//	{
+//		return mCreated;
+//	}
+//
+//	public List<MergedTileLink> GetMergedTiles()
+//	{
+//		return mMerged;
+//	}
+//
+//	public List<MovedTileLink> GetMovedTiles()
+//	{
+//		return mMoved;
+//	}
 
 }
