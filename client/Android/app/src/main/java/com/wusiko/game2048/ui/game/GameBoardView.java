@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -103,24 +104,35 @@ public class GameBoardView extends View
 			{
 				try
 				{
-					for (MergedTileLink link : movementState.GetTileLinks().GetMergedTiles())
+					for (Object entry : movementState.GetTileLinks().GetChanges())
 					{
-						MergeTile(link);
+						if (entry instanceof CreatedTileLink)
+						{
+							CreateTile(((CreatedTileLink) entry));
+						}
+						else if (entry instanceof MovedTileLink)
+						{
+							MoveTile(((MovedTileLink)entry));
+						}
+						else if (entry instanceof MergedTileLink)
+						{
+							MergeTile(((MergedTileLink)entry));
+						}
 					}
-					for (MovedTileLink link : movementState.GetTileLinks().GetMovedTiles())
+
+					if (movementState.IsVictory())
 					{
-						MoveTile(link);
+						Toast.makeText(mContext, "Victory!", Toast.LENGTH_LONG).show();
 					}
-					for (CreatedTileLink link : movementState.GetTileLinks().GetCreatedTiles())
+					else if (movementState.IsLose())
 					{
-						CreateTile(link);
+						Toast.makeText(mContext, "Lose!", Toast.LENGTH_LONG).show();
 					}
 					PrintBoard();
 				}
 				catch (RuntimeException e)
 				{
 					Log.e(TAG, e.getMessage() != null ? e.getMessage() : "no error");
-//					e.printStackTrace();
 				}
 			}
 		});
@@ -276,21 +288,8 @@ public class GameBoardView extends View
 
 	private void MergeTile(@NotNull MergedTileLink link)
 	{
-		final int[] posOrigin = link.GetOrigin().getPosition();
-		final int indexOrigin = ToMappedIndex(posOrigin[0], posOrigin[1]);
-		GameTileView tileView = mTileViewsByIndex.get(indexOrigin);
-		if (tileView == null)
-		{
-			throw new RuntimeException(String.format("Cannot merge tile: position 'origin' (%d; %d) is empty!", posOrigin[0], posOrigin[1]));
-		}
-
 		final int[] posFrom = link.GetFrom().getPosition();
 		final int indexFrom = ToMappedIndex(posFrom[0], posFrom[1]);
-		if (indexOrigin == indexFrom)
-		{
-			throw new RuntimeException(String.format("Cannot merge tile: index of tile 'from' at position (%d; %d) and 'origin' tile are equal!", posOrigin[0], posOrigin[1]));
-		}
-
 		GameTileView tileViewFrom = mTileViewsByIndex.get(indexFrom);
 		if (tileViewFrom == null)
 		{
@@ -299,25 +298,22 @@ public class GameBoardView extends View
 
 		final int[] posTo = link.GetTo().getPosition();
 		final int indexTo = ToMappedIndex(posTo[0], posTo[1]);
-		if (mTileViewsByIndex.containsKey(indexTo))
+		final GameTileView tileViewTo = mTileViewsByIndex.get(indexTo);
+		if (tileViewTo == null)
 		{
-			throw new RuntimeException(String.format("Cannot merge tile: position 'to' (%d; %d) is busy!", posTo[0], posTo[1]));
+			throw new RuntimeException(String.format("Cannot merge tile: position 'to' (%d; %d) is empty!", posTo[0], posTo[1]));
 		}
 
-		mTileViewsByIndex.remove(indexOrigin);
 		mTileViewsByIndex.remove(indexFrom);
-		mTileViewsByIndex.put(indexTo, tileView);
-		tileView.SetTile(link.GetTo());
-		UpdateGeometry(tileView);
+		tileViewTo.SetTile(link.GetTo());
 		mBoardLayout.removeView(tileViewFrom);
 
 		int tileFromValue = link.GetFrom().getValue();
-		int tileOriginValue = link.GetOrigin().getValue();
 		int tileToValue = link.GetTo().getValue();
 
 		Log.i(TAG, String.format("Tiles merged: %d (%d; %d) + %d (%d; %d) = %d (%d; %d)",
 				tileFromValue, posFrom[0], posFrom[1],
-				tileOriginValue, posOrigin[0], posOrigin[1],
+				tileToValue / 2, posTo[0], posTo[1],
 				tileToValue, posTo[0], posTo[1]));
 	}
 

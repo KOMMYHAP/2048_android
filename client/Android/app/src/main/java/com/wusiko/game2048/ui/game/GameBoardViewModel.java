@@ -78,6 +78,10 @@ public class GameBoardViewModel extends ViewModel
 	private void OnMoved()
 	{
 		MovementState state = mGameBoard.GetMovementState();
+		if (state.GetTileLinks().GetChanges().isEmpty())
+		{
+			return;
+		}
 		mMovementState.setValue(state);
 
 		int oldScores = 0;

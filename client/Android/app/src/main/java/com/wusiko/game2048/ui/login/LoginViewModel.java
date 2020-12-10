@@ -30,6 +30,7 @@ public class LoginViewModel extends ViewModel
 	public void setActivity(LoginActivity activity)
 	{
 		mActivity = new WeakReference<>(activity);
+		loginRepository.SetContext(activity);
 	}
 
 	LiveData<LoginFormState> getLoginFormState()

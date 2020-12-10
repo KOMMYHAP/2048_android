@@ -1,8 +1,11 @@
 package com.wusiko.game2048.data.login;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
@@ -32,6 +35,11 @@ public class LoginRepository {
             mInstance = new LoginRepository(dataSource, loginExecutor);
         }
         return mInstance;
+    }
+
+    public void SetContext(Context context)
+    {
+        mDataSource.SetContext(context);
     }
 
     public boolean isLoggedIn() {
