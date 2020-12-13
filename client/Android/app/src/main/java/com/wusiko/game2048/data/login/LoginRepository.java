@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
@@ -22,7 +21,7 @@ public class LoginRepository {
     private FutureTask<?> mLoginTask = null;
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
-    private LoggedInUser user = null;
+    private LoggedInUser mUser = null;
 
     // private constructor : singleton access
     private LoginRepository(LoginDataSource dataSource, Executor loginExecutor) {
@@ -30,20 +29,35 @@ public class LoginRepository {
         mLoginExecutor = loginExecutor;
     }
 
-    public static LoginRepository getInstance(LoginDataSource dataSource, Executor loginExecutor) {
+    public static LoginRepository createInstance(LoginDataSource dataSource, Executor loginExecutor) {
         if (mInstance == null) {
             mInstance = new LoginRepository(dataSource, loginExecutor);
         }
         return mInstance;
     }
 
-    public void SetContext(Context context)
-    {
+    public static LoginRepository getInstance() {
+        return mInstance;
+    }
+
+    public LeaderBoard GetLeaderBoard() {
+        return mDataSource.GetLeaderBoard();
+    }
+
+    public void SetContext(Context context) {
         mDataSource.SetContext(context);
     }
 
+    public void UpdateLoggedInUserData(int scores) {
+        if (mUser.getScores() < scores)
+        {
+            mDataSource.UpdateLeaderBoard(mUser.getUsername(), scores);
+            mUser.UpdateScores(scores);
+        }
+    }
+
     public boolean isLoggedIn() {
-        return user != null;
+        return mUser != null;
     }
 
     public boolean isLogging() {
@@ -55,14 +69,15 @@ public class LoginRepository {
             return;
         }
 
-        user = null;
-        mDataSource.logout();
+        mUser = null;
+    }
+
+    public LoggedInUser getLoggedInUser() {
+        return mUser;
     }
 
     private void setLoggedInUser(LoggedInUser user) {
-        this.user = user;
-        // If user credentials will be cached in local storage, it is recommended it be encrypted
-        // @see https://developer.android.com/training/articles/keystore
+        this.mUser = user;
     }
 
     public LiveData<Result<LoggedInUser>> getLoginResult() {

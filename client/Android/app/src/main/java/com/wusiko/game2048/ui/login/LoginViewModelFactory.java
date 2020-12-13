@@ -22,7 +22,7 @@ public class LoginViewModelFactory implements ViewModelProvider.Factory {
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(LoginViewModel.class)) {
             Executor loginExecutor = Executors.newSingleThreadExecutor();
-            LoginRepository loginRepository = LoginRepository.getInstance(new LoginDataSource(), loginExecutor);
+            LoginRepository loginRepository = LoginRepository.createInstance(new LoginDataSource(), loginExecutor);
             return (T) new LoginViewModel(loginRepository);
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");

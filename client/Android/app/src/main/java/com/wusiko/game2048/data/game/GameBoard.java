@@ -1,7 +1,5 @@
 package com.wusiko.game2048.data.game;
 
-import androidx.core.util.Pair;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +40,7 @@ public class GameBoard {
     }
 
     public void StopGame() {
+        mGameField.clear();
         for (int i = 0; i < GameConfig.TILES_NUMBER; ++i) {
             mGameField.add(null);
         }
@@ -120,7 +119,7 @@ public class GameBoard {
 
     private GameTile CopyTile(int mappedPos) {
         GameTile tile = mGameField.get(mappedPos);
-        return tile != null ? tile.clone() : null;
+        return tile != null ? tile.copy() : null;
     }
 
     @NotNull
@@ -188,7 +187,7 @@ public class GameBoard {
             final int valueP = rowP != null ? rowP.getValue() : 0;
             final int valueX = rowX.getValue();
             if (valueP == valueX && rowP != null) {
-                moveResult.Merged(rowP.clone(), rowX.clone());
+                moveResult.Merged(rowP.copy(), rowX.copy());
                 rowP.Merged();
                 row[x] = null;
                 place++;
@@ -201,7 +200,7 @@ public class GameBoard {
                     place++;
                 }
 
-                moveResult.Moved(place, rowX.clone());
+                moveResult.Moved(place, rowX.copy());
                 row[place] = rowX;
                 int[] adaptedPos = AdaptPosition(place, rowX.getPosition(), originDirection);
                 rowX.setX(adaptedPos[0]);
@@ -233,7 +232,7 @@ public class GameBoard {
         mGameField.set(posL, to);
         mGameField.set(posR, null);
         mTilesBitMap &= ~(1 << posR);
-        mMovementState.GetTileLinks().Add(new MergedTileLink(to.clone(), from.clone()));
+        mMovementState.GetTileLinks().Add(new MergedTileLink(to.copy(), from.copy()));
     }
 
     private void MoveTiles(int place, @NotNull GameTile tile, @NotNull Direction originDirection) {
@@ -248,7 +247,7 @@ public class GameBoard {
         int[] posFrom = tile.getPosition().clone();
         tile.setX(adaptedPos[0]);
         tile.setY(adaptedPos[1]);
-        mMovementState.GetTileLinks().Add(new MovedTileLink(tile.clone(), posFrom));
+        mMovementState.GetTileLinks().Add(new MovedTileLink(tile.copy(), posFrom));
     }
 
     private static int[] AdaptPosition(int place, int[] pos, Direction originDirection)
@@ -314,7 +313,7 @@ public class GameBoard {
         int mappedPos = ToBitMapPosition(tile.getX(), tile.getY());
         mTilesBitMap |= (1 << mappedPos);
         mGameField.set(mappedPos, tile);
-        mMovementState.GetTileLinks().Add(new CreatedTileLink(tile.clone()));
+        mMovementState.GetTileLinks().Add(new CreatedTileLink(tile.copy()));
     }
 
     private int ToBitMapPosition(int x, int y) {

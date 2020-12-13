@@ -1,9 +1,25 @@
 package com.wusiko.game2048.data.login;
 
 public class UserData {
-    private String username;
-    private String password;
+    private int password;
     private int maxScores;
 
-    // todo: do json compatible type
+    public UserData()
+    {}
+
+    public int getPassword() {
+        return password;
+    }
+
+    public void setPassword(int password) {
+        this.password = password;
+    }
+
+    public int getMaxScores() {
+        return maxScores;
+    }
+
+    public void setMaxScores(int maxScores) {
+        this.maxScores = maxScores;
+    }
 }

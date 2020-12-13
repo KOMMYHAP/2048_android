@@ -5,19 +5,35 @@ package com.wusiko.game2048.data.login;
  */
 public class LoggedInUser {
 
-    private String userId;
-    private String displayName;
+    private String username;
+    private int scores;
+    private LeaderBoard leaderBoard;
 
-    public LoggedInUser(String userId, String displayName) {
-        this.userId = userId;
-        this.displayName = displayName;
+    public LoggedInUser(String username, int scores, LeaderBoard leaderBoard) {
+        this.username = username;
+        this.scores = scores;
+        this.leaderBoard = leaderBoard;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public int getScores() {
+        return scores;
     }
+
+    public LeaderBoard getLeaderBoard() {
+        return leaderBoard;
+    }
+
+    public void UpdateScores(int scores)
+    {
+        if (scores > getScores())
+        {
+            this.scores = scores;
+            leaderBoard.Update(getUsername(), getScores());
+        }
+    }
+
 }

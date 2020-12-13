@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.wusiko.game2048.data.game.GameBoard;
 import com.wusiko.game2048.data.game.MovementState;
+import com.wusiko.game2048.data.login.LoginRepository;
 
 public class GameBoardViewModel extends ViewModel
 {
@@ -20,8 +21,6 @@ public class GameBoardViewModel extends ViewModel
 	public GameBoardViewModel(GameBoard gameBoard)
 	{
 		mGameBoard = gameBoard;
-		mScores.setValue(0);
-		mHighScores.setValue(0);
 	}
 
 	public LiveData<MovementState> GetMovementState()
@@ -70,6 +69,8 @@ public class GameBoardViewModel extends ViewModel
 	public void OnRestart()
 	{
 		Log.i(TAG, "State: game restarted");
+		mScores.setValue(0);
+		mHighScores.setValue(LoginRepository.getInstance().getLoggedInUser().getScores());
 		mGameBoard.StopGame();
 		mGameBoard.StartGame();
 		mMovementState.setValue(mGameBoard.GetMovementState());

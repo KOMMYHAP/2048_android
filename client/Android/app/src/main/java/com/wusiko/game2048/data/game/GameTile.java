@@ -37,8 +37,7 @@ public class GameTile
 		return new GameTile(x, y, 1 << degree);
 	}
 
-	@Override
-	public GameTile clone()
+	public GameTile copy()
 	{
 		return new GameTile(getX(), getY(), getValue());
 	}

@@ -68,6 +68,7 @@ public class LoginActivity extends AppCompatActivity {
                 setLoginInProcess(false);
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
+                    startGame();
                 }
                 if (loginResult.getError() != null) {
                     showLoginFailed(loginResult.getError());
@@ -113,15 +114,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void startGame() {
+        setResult(Activity.RESULT_OK);
+        finish();
+        Intent intent = new Intent(this, GameActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
+
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome).replace("%username%", model.getDisplayName());
-        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
-        { // TODO: switch on game activity
-            setResult(Activity.RESULT_OK);
-            finish();
-            Intent intent = new Intent(this, GameActivity.class);
-            startActivity(intent);
-        }
+        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_SHORT).show();
     }
 
     private void showLoginFailed(@StringRes Integer errorString) {
@@ -142,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void tryLogin() {
         if (loginViewModel.isLoggedIn()) {
-            return;
+            loginViewModel.logout();
         }
 
         setLoginInProcess(true);
@@ -150,5 +153,4 @@ public class LoginActivity extends AppCompatActivity {
                 mUsernameEditText.getText().toString(),
                 mPasswordEditText.getText().toString());
     }
-
 }

@@ -1,30 +1,28 @@
 package com.wusiko.game2048.ui.login;
 
-import androidx.annotation.Nullable;
+import com.wusiko.game2048.data.login.LeaderBoard;
 
 /**
  * Authentication result : success (user details) or error message.
  */
 class LoginResult {
-    @Nullable
-    private LoggedInUserView success;
-    @Nullable
-    private Integer error;
+    private final LoggedInUserView success;
+    private final Integer error;
 
-    LoginResult(@Nullable Integer error) {
+    LoginResult(Integer error) {
+        this.success = null;
         this.error = error;
     }
 
-    LoginResult(@Nullable LoggedInUserView success) {
+    LoginResult(LoggedInUserView success, LeaderBoard leaderBoard) {
         this.success = success;
+        this.error = null;
     }
 
-    @Nullable
     LoggedInUserView getSuccess() {
         return success;
     }
 
-    @Nullable
     Integer getError() {
         return error;
     }
