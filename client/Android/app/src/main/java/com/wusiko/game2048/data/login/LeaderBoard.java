@@ -45,16 +45,21 @@ public class LeaderBoard {
         }
     }
 
-    public void FillWithFakes(int scores, int size) {
+    public void FillWithFakes(int size) {
+        int minScores = mRecords.isEmpty() ? 0 : Integer.MAX_VALUE;
+        for (LeaderBoardRecord record : mRecords)
+        {
+            minScores = Math.min(minScores, record.getMaxScores());
+        }
         for (int i = mRecords.size(); i < size; ++i) {
-            mRecords.add(CreateFake(scores));
+            mRecords.add(CreateFake(minScores));
         }
         Sort();
     }
 
     private void Sort()
     {
-        Collections.sort(mRecords, Collections.reverseOrder());
+        Collections.sort(mRecords, Collections.<LeaderBoardRecord>reverseOrder());
     }
 
     private LeaderBoardRecord CreateFake(int scores) {
@@ -68,9 +73,8 @@ public class LeaderBoard {
 
         final int iPlayer = mRandom.nextInt(fakePlayersArray.length);
         final String fakePlayer = fakePlayersArray[iPlayer];
-
-        final int scoresBounds = (scores / 4) == 0 ? 100 : (scores / 4);
-        final int fakeScores = scores + (mRandom.nextInt(scoresBounds)) * 2;
+        scores = Math.max(scores, 100);
+        final int fakeScores = (mRandom.nextInt(scores / 2)) * 2;
 
         return new LeaderBoardRecord(fakePlayer, fakeScores);
     }

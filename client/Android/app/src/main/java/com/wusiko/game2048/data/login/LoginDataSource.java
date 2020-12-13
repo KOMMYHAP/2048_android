@@ -46,7 +46,7 @@ public class LoginDataSource {
                 return new Result.Error(new RuntimeException("Incorrect password"));
             }
             LeaderBoard leaderBoard = mLeaderBoard.copy();
-            leaderBoard.FillWithFakes(userData.getMaxScores(), 5);
+            leaderBoard.FillWithFakes(3);
             LoggedInUser user = new LoggedInUser(username, userData.getMaxScores(), leaderBoard);
             return new Result.Success<>(user);
         } catch (Exception e) {
@@ -59,6 +59,7 @@ public class LoginDataSource {
         userData.setPassword(password.hashCode());
         userData.setMaxScores(0);
         mLogins.put(username, userData);
+        mLeaderBoard.Add(username, 0);
 
         if (mContext != null) {
             SharedPreferences prefs = mContext.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
