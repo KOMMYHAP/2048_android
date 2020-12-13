@@ -69,6 +69,7 @@ public class LoginRepository {
             return;
         }
 
+        mLoginResult = new MutableLiveData<>();
         mUser = null;
     }
 
